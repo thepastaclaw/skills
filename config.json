@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "repos": [
+    {
+      "owner": "dashpay",
+      "name": "dash",
+      "skill_path": "skills/dash-core/",
+      "enabled": true
+    },
+    {
+      "owner": "dashpay",
+      "name": "platform",
+      "skill_path": "skills/platform/",
+      "enabled": false
+    }
+  ],
+  "settings": {
+    "max_concurrent_reviews": 1,
+    "agent_timeout_minutes": 20,
+    "comment_budget": 10,
+    "poll_interval_minutes": 3
+  }
+}
