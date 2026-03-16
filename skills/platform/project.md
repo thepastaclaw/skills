@@ -91,8 +91,6 @@ cargo clippy --workspace # Lint
 
 ## Key Maintainers
 
-- **QuantumExplorer** — Platform lead
-- **shumkov** — Core developer
-- **lklimek** — Core developer
-- **okuznetsov** — Core developer
-- **HashEngineering** — Core developer
+- **QuantumExplorer** — Platform lead (GroveDB, Drive)
+- **shumkov** — Platform developer
+- **lklimek** — Platform developer
