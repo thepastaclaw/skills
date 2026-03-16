@@ -71,11 +71,6 @@ Changes to system contracts need:
 - Migration paths for existing data
 - Consideration of upgrade ordering
 
-## Backport Considerations
-
-Platform uses `dashcore` (Rust bindings) which tracks Dash Core.
-Changes to Dash Core may require corresponding Platform updates.
-
 ## Known Patterns / Accepted Exceptions
 
 - Version dispatch match arms (boilerplate is expected)
