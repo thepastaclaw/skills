@@ -134,3 +134,26 @@ Rewrite all findings in a consistent voice:
 
 Include `dropped_findings` for transparency — shows what was
 filtered and why. This aids debugging and feedback loop accuracy.
+
+### For Incremental Reviews
+
+When this is an incremental review (prior findings provided),
+also output a `resolved_findings` array — prior findings that
+the new code has addressed:
+
+```json
+{{
+  "resolved_findings": [
+    {{
+      "finding_hash": "abc123",
+      "original_title": "Missing null check in handler",
+      "resolution": "Fixed in the new commit — null check added at line 42"
+    }}
+  ]
+}}
+```
+
+Check each prior finding against the new code. If the issue no
+longer exists (code changed, fix applied, section removed), add
+it to `resolved_findings` with a brief explanation of how it was
+resolved.
