@@ -132,8 +132,10 @@ Dash uses two BLS signature schemes:
 
 - Dash Core is based on Bitcoin Core with periodic backports
 - Backported changes preserve original authorship
-- `test/util/data/non-backported.txt` tracks intentionally skipped
-  upstream changes
+- `test/util/data/non-backported.txt` tracks ALL files that did NOT
+  originate from upstream Bitcoin Core (Dash-specific files). Used
+  for extra linting. When a PR adds a new Dash-specific file, it
+  must be appended to this list.
 - Dash-specific code is interleaved with Bitcoin Core code — not
   cleanly separated
 

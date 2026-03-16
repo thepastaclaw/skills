@@ -3,7 +3,7 @@
 ## Code Style
 
 - Follows Bitcoin Core style: `clang-format` enforced in CI
-- C++17, some C++20 features where supported
+- C++20
 - Python PEP 8 for test framework (`test/functional/`)
 - Naming: `CClassName`, `m_member`, `g_global`, `nLocalVar`
   (Bitcoin Core conventions)
@@ -66,8 +66,8 @@
 ## Things NOT to Flag
 
 - Style issues already caught by `clang-format` CI
-- Bitcoin Core upstream code in backport PRs — review the merge
-  commit's conflict resolution, not the upstream changes
+- Bitcoin Core upstream code in backport PRs — see "Backport PR
+  Review Process" above for the specialized review approach
 - `TODO` / `FIXME` comments that are part of upstream Bitcoin Core
 - Minor variable naming differences from Bitcoin Core convention
   in Dash-specific code (some divergence is historical)
@@ -77,6 +77,60 @@
 ## Per-Reviewer Preferences
 
 (This section evolves from feedback. Initially empty.)
+
+## Backport PR Review Process
+
+Backport PRs (titles starting with `backport:` or containing
+`Merge bitcoin#`) require a **different review approach** than
+regular feature PRs. The code changes originated upstream in
+Bitcoin Core and were already reviewed there — re-reviewing the
+behavior changes is mostly unnecessary.
+
+### What to check in backport PRs:
+
+1. **Conflict resolution:** The merge commits are the primary
+   review target. Did the conflict resolution preserve both the
+   upstream intent AND the Dash-specific code? Are there incorrect
+   deletions of Dash-specific logic during merge?
+
+2. **Missing prerequisites:** Does this backport depend on earlier
+   Bitcoin Core changes that haven't been backported yet? Look for:
+   - References to functions/types that don't exist in the Dash
+     codebase
+   - Changed function signatures that don't match callers
+   - Missing `#include` for newly used headers
+
+3. **Dash-specific interaction:** Does the backported change
+   interact with Dash-specific subsystems (LLMQ, evo, governance,
+   etc.)? If the upstream change modifies validation, networking,
+   or wallet code, check that the Dash extensions still work
+   correctly after the merge.
+
+4. **`non-backported.txt` updates:** If the backport adds new
+   Dash-specific files (e.g., adaptation layers), they must be
+   added to `test/util/data/non-backported.txt`.
+
+5. **Test adaptation:** Were Bitcoin Core tests properly adapted
+   for Dash? Tests that reference Bitcoin-specific behavior may
+   need adjustment for Dash parameters (block times, reward
+   structure, etc.).
+
+### What NOT to review in backport PRs:
+
+- **Upstream behavior changes** — these were reviewed by Bitcoin
+  Core maintainers. Don't second-guess upstream design decisions
+  unless they are critical/consensus-affecting in the Dash context.
+- **Upstream code style** — backports preserve original formatting.
+- **Upstream commit messages** — these preserve original authorship.
+
+### When to flag in backport PRs:
+
+- Only flag issues that are **critical** (security, consensus) or
+  specific to the **Dash adaptation** (merge conflicts, missing
+  prerequisites, broken Dash-specific features).
+- Use severity `blocking` only for merge errors or missing
+  prerequisites that would cause build/runtime failures.
+- Prefer `suggestion` severity for potential interaction concerns.
 
 ## Consensus-Critical Code Areas
 
