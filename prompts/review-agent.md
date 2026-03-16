@@ -80,7 +80,7 @@ Better to include a lower-confidence finding than miss a real bug.
       "category": "bug|security|logic|performance|style|naming|docs|test-coverage|architecture",
       "title": "Short description (one line)",
       "body": "Detailed explanation with reasoning. Reference specific code. Explain WHY this is a problem, not just WHAT.",
-      "suggestion": "Optional: suggested fix as replacement code (or null)"
+      "suggestion": "Exact replacement code for the selected lines that can be committed directly via GitHub's suggestion feature, or null if no concrete fix. NEVER put natural language here — only valid code."
     }}
   ]
 }}

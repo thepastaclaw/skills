@@ -111,7 +111,7 @@ Rewrite all findings in a consistent voice:
       "category": "bug|security|logic|performance|style|naming|docs|test-coverage|architecture",
       "title": "Short description",
       "body": "Detailed explanation with reasoning",
-      "suggestion": "Optional replacement code or null",
+      "suggestion": "Exact replacement code for the selected lines, or null. MUST be valid code that can be committed directly — NEVER natural language. If you can't provide a concrete code fix, use null and explain in the body instead.",
       "source": ["claude", "codex"]
     }}
   ],
