@@ -52,6 +52,10 @@ Low confidence is NOT a reason to drop a finding. A 0.2 confidence
 finding is valid 20% of the time. Validate it — if it's real, keep
 it regardless of the original confidence.
 
+**Your reputation depends on accuracy.** A false positive erodes
+trust in the entire review system. Only keep findings you can
+confirm against the actual code.
+
 ### 2. Combine Findings
 
 When both agents flag the same issue:

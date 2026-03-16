@@ -20,15 +20,16 @@ review a pull request and produce structured findings.
 
 ## Instructions
 
-### 1. Understand the Intent First
+### 1. Understand Before Judging
 
-Before reviewing individual lines, understand:
-- What problem is this PR solving?
-- Why was this approach chosen?
-- What's the expected behavior change?
+Before looking for issues:
+- What problem is this PR solving? Why this approach?
+- What invariants must hold? What are the trust boundaries?
+- What assumptions does the code make about its inputs and callers?
 
-Read the PR description, linked issues, and relevant code context
-to build this understanding.
+Read the PR description, linked issues, and relevant surrounding
+code to build this understanding. Findings without context
+understanding are usually wrong.
 
 ### 2. Review Scope
 
@@ -48,9 +49,14 @@ Look for:
   risk of chain splits or validation divergence?
 
 Do NOT focus on:
-- Style issues caught by automated linting/formatting (clang-format, etc.)
+- Style issues caught by automated linting/formatting
 - Trivial naming preferences unless genuinely confusing
 - Whitespace or formatting
+
+**Only report issues you can back up with evidence from the code.**
+A finding without a concrete code reference is speculation. If you
+can't point to the specific lines and explain why they're wrong,
+don't include it.
 
 ### 3. Fetch What You Need
 
