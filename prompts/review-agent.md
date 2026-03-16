@@ -16,10 +16,6 @@ review a pull request and produce structured findings.
 - **Base branch:** {base_branch}
 - **Head SHA:** {head_sha}
 
-<!-- {incremental_context}: Filled by coordinator. Empty for first
-     review. For incremental reviews (new push on already-reviewed PR):
-     "This is an incremental review. You reviewed this PR previously at
-     commit {old_sha}. Focus on what changed." -->
 {incremental_context}
 
 ## Instructions
@@ -109,7 +105,4 @@ Better to include a lower-confidence finding than miss a real bug.
 - **0.2-0.5**: Low but worth flagging. Something feels off but you
   can't fully articulate why.
 
-<!-- {incremental_instructions}: Filled by coordinator. Empty for
-     first review. For incremental: "Do not duplicate comments from
-     prior rounds. Focus on new/changed code." -->
 {incremental_instructions}
