@@ -86,12 +86,29 @@ regular feature PRs. The code changes originated upstream in
 Bitcoin Core and were already reviewed there — re-reviewing the
 behavior changes is mostly unnecessary.
 
+### Review method:
+
+For each backported upstream PR, compare the upstream commit(s)
+against the Dash commit(s) side by side:
+
+1. **Fetch the upstream diff** — get the original Bitcoin Core PR
+   diff (from the `bitcoin#NNNNN` reference in the title/body)
+2. **Compare with the Dash commit** — look at the individual Dash
+   commit that corresponds to that upstream change (not the full
+   PR diff, which may contain multiple backports)
+3. **Focus on differences** — anything that is identical to
+   upstream can be glossed over (already reviewed by Bitcoin Core
+   maintainers). Dive into anything that differs:
+   - Was the difference a necessary Dash adaptation?
+   - Was something accidentally dropped or incorrectly resolved?
+   - Was Dash-specific code in the same area preserved correctly?
+
 ### What to check in backport PRs:
 
-1. **Conflict resolution:** The merge commits are the primary
-   review target. Did the conflict resolution preserve both the
-   upstream intent AND the Dash-specific code? Are there incorrect
-   deletions of Dash-specific logic during merge?
+1. **Upstream-to-Dash delta:** The differences between the
+   upstream commit and the Dash commit are the primary review
+   target. Identical code = already reviewed upstream, skip it.
+   Different code = examine closely.
 
 2. **Missing prerequisites:** Does this backport depend on earlier
    Bitcoin Core changes that haven't been backported yet? Look for:
