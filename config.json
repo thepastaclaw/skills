@@ -21,7 +21,7 @@
     }
   ],
   "settings": {
-    "max_concurrent_reviews": 1,
+    "max_concurrent_reviews": 3,
     "agent_timeout_minutes": 20,
     "comment_budget": 10,
     "poll_interval_minutes": 3
