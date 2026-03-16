@@ -70,19 +70,11 @@ Cryptographic integrity is paramount in GroveDB:
 
 ## Known Patterns / Accepted Exceptions
 
-- `cost_return_on_error!` macro usage throughout — this is the
-  standard error handling pattern
-- Link state machine transitions — complex but correct by design
-- Blake3 prefix generation — deterministic subtree isolation
-- Version dispatch boilerplate
+(Populated by feedback loop as false positives are identified.)
 
 ## Things NOT to Flag
 
-- Proof system complexity — it is inherently complex and the
-  complexity is necessary
-- Version dispatch boilerplate
-- Cost tracking verbosity — every operation must track costs
-- `cost_return_on_error!` macro density — this is expected
+(Populated by feedback loop as recurring false positives emerge.)
 
 ## Security-Critical Areas
 

@@ -73,17 +73,11 @@ Changes to system contracts need:
 
 ## Known Patterns / Accepted Exceptions
 
-- Version dispatch match arms (boilerplate is expected)
-- Feature flag gating complexity
-- `CostResult` propagation boilerplate
-- Upstream GroveDB patterns — don't second-guess GroveDB internals
+(Populated by feedback loop as false positives are identified.)
 
 ## Things NOT to Flag
 
-- GroveDB usage patterns that match GroveDB's own conventions
-- Version dispatch boilerplate — it's verbose by design
-- Feature flag complexity — necessary for protocol versioning
-- Style issues caught by `cargo fmt` / `cargo clippy`
+(Populated by feedback loop as recurring false positives emerge.)
 
 ## Consensus-Critical Code Areas
 
