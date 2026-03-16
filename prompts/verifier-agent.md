@@ -33,11 +33,13 @@ that don't actually apply to the code.
 For EACH finding from both agents:
 
 1. **Open the referenced file** and read the relevant lines
-2. **Check if the finding is accurate:**
-   - Does the code actually have this issue?
-   - Is the line number correct?
-   - Is the agent hallucinating about a function, variable, or
-     behavior that doesn't exist?
+2. **Check if this is a real issue:**
+   - Is there a precondition, invariant, or calling context that
+     makes the flagged code actually safe?
+   - Is there a likely justification for why the change is the way
+     it is, where the suggestion would hurt more than help?
+   - Does the broader context (callers, lifecycle, related code)
+     make this a non-issue?
 3. **Check against accepted patterns:**
    - Is this flagging a known intentional pattern from the review
      skill's "accepted patterns" section?
@@ -53,8 +55,9 @@ it regardless of the original confidence.
 ### 2. Combine Findings
 
 When both agents flag the same issue:
-- **Combine them** into a single finding with the best explanation
-  from both perspectives
+- **Synthesize** a new explanation drawing from both agents'
+  perspectives — don't just pick the best one, combine the
+  insights into something better than either alone
 - **Boost confidence** — agreement from independent reviewers is
   strong signal. Two 0.5s from different agents > one 0.8.
 - Track both sources in the `source` field
