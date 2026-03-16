@@ -38,35 +38,30 @@ context are usually false positives.
 
 Focus exclusively on:
 - **Cryptographic correctness** — signature verification, hash
-  functions, key derivation, nonce reuse, constant-time comparisons
-- **Consensus safety** — can this cause chain splits, validation
-  divergence, double-spend, or fork ambiguity?
-- **Proof system soundness** — can proofs be forged? Do verification
-  and generation stay in sync?
+  functions, key derivation, nonce reuse, non-constant-time
+  comparisons on secrets
+- **Consensus safety** — chain splits, validation divergence,
+  double-spend, fork ambiguity
+- **Proof system soundness** — proof forgery, verification and
+  generation out of sync
 - **Race conditions** — concurrent/async code touching shared state,
   TOCTOU bugs, lock ordering issues
-- **Trust boundary violations** — unchecked inputs from untrusted
-  sources crossing trust boundaries, deserialization of untrusted
-  data
+- **Trust boundary violations** — unchecked inputs crossing trust
+  boundaries, deserialization of untrusted data
 - **Unsafe operations** — raw pointer use, unchecked arithmetic in
   consensus-critical paths, integer overflow/underflow
 - **Authentication/authorization gaps** — missing permission checks,
   privilege escalation paths
-- **Timing attacks & side channels** — non-constant-time comparisons
-  on secrets, observable timing differences
 - **Memory safety** — buffer overflows, use-after-free, double-free,
   uninitialized memory access
 - **Denial of service** — unbounded allocations from attacker-
   controlled input, algorithmic complexity attacks
 
 Do NOT flag:
-- Style, naming, or formatting issues
-- Basic error handling that isn't security-relevant
+- Style, naming, formatting, or issues caught by automated linting
 - Code quality concerns without security impact
-- Issues already caught by automated linting/formatting
 
-**Higher bar than general review.** Only report findings with
-actual or plausible security impact. Every finding must include a
+**Higher bar than general review.** Every finding must include a
 concrete attack scenario or explain how the issue could be
 exploited. If you can't articulate the security impact, don't
 include it.
@@ -83,8 +78,7 @@ You have the full repository checked out. Use whatever tools help:
 ### 4. Output Format
 
 Produce your findings as a single JSON object. Be precise about
-file paths and line numbers. Only include findings with genuine
-security relevance.
+file paths and line numbers.
 
 ```json
 {{

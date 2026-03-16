@@ -38,39 +38,33 @@ context are noise.
 
 Focus exclusively on:
 - **Error handling discipline** — `unwrap()` in production code,
-  `.expect()` without documented justification, swallowed errors,
-  panics in library code. Verify `?` operator is used with properly
-  typed errors, not blanket `Box<dyn Error>`
+  `.expect()` without justification, swallowed errors, panics in
+  library code, blanket `Box<dyn Error>` instead of typed errors
 - **Ownership & lifetime patterns** — unnecessary clones,
   gratuitous `Arc<Mutex<>>` where ownership transfer suffices,
-  lifetime annotations that could be elided or are overly broad
-- **Trait design** — trait bloat (too many methods), missing blanket
-  impls, improper use of associated types vs generics, sealed trait
-  patterns where needed
+  overly broad lifetime annotations
+- **Trait design** — trait bloat, missing blanket impls, improper
+  use of associated types vs generics, missing sealed trait patterns
 - **Type system usage** — missing newtypes for domain safety (e.g.
-  raw `u64` for distinct ID types), enum exhaustiveness, phantom
-  types for state machines, proper `From`/`Into` implementations
+  raw `u64` for distinct ID types), enum exhaustiveness, missing
+  `From`/`Into` implementations
 - **Module architecture** — god modules, circular dependencies,
   public API surface too broad, `pub(crate)` vs `pub` discipline
 - **Performance patterns** — unnecessary allocations in hot paths,
   `collect()` where iterators suffice, `clone()` in tight loops,
-  missing `#[inline]` on small hot functions, `String` where `&str`
-  works
-- **Test quality** — tests far from the code they cover, missing
-  assertion messages, no edge case coverage, tests that test the
-  mock not the code, missing `#[should_panic]` for error paths
+  `String` where `&str` works
+- **Test quality** — missing edge case coverage, tests that test
+  the mock not the code, missing `#[should_panic]` for error paths
 
 Do NOT flag:
-- Issues caught by `clippy` or `rustfmt` (unused imports, naming
-  conventions, formatting)
+- Issues caught by `clippy` or `rustfmt`
 - Style preferences without quality impact
 - Missing documentation unless the public API is genuinely
   confusing without it
 
-**Focus on issues that matter.** A clone in cold init code is
-fine. An unwrap in a CLI tool's main is fine. Apply judgment about
-what actually affects reliability, maintainability, or
-performance in context.
+**Apply contextual judgment.** A clone in cold init code is fine.
+An unwrap in a CLI tool's main is fine. Focus on what actually
+affects reliability, maintainability, or performance.
 
 ### 3. Fetch What You Need
 

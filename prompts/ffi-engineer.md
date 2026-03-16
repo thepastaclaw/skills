@@ -38,44 +38,40 @@ FFI findings without understanding of both sides are usually wrong.
 ### 2. Review Scope — FFI/Cross-Language Lens
 
 Focus exclusively on:
-- **Memory ownership across boundaries** — allocation on one side,
-  free on the other. `Box::into_raw`/`Box::from_raw` pairing,
-  double-free, use-after-free, leaked allocations
-- **FFI-safe types** — passing non-`repr(C)` types across
-  boundaries, `bool` representation differences, enum layout
-  assumptions, passing `Option<NonNull>` vs raw pointers
-- **Panic safety** — Rust panics must not unwind across `extern "C"`
-  boundaries. Check for `catch_unwind` at FFI entry points or
-  `#[no_panic]` guarantees
+- **Memory ownership across boundaries** —
+  `Box::into_raw`/`Box::from_raw` pairing, double-free,
+  use-after-free, leaked allocations
+- **FFI-safe types** — non-`repr(C)` types across boundaries,
+  `bool` representation differences, enum layout assumptions,
+  `Option<NonNull>` vs raw pointers
+- **Panic safety** — Rust panics unwinding across `extern "C"`
+  boundaries. Check for `catch_unwind` at FFI entry points
 - **WASM binding correctness** — `wasm-bindgen` annotations, JS
   interop type mappings, memory management in WASM linear memory,
   lifetime of JS references held by Rust
-- **Swift/Rust interop** — UniFFI interface definitions matching
-  Rust implementations, `cbindgen` header accuracy, Swift memory
-  management (ARC) interacting with Rust ownership
+- **Swift/Rust interop** — UniFFI definitions matching Rust
+  implementations, `cbindgen` header accuracy, ARC interacting
+  with Rust ownership
 - **Error handling across boundaries** — error codes vs exceptions
-  vs Result types, error information preserved or lost at
-  boundaries, null pointer returns without error signaling
-- **Thread safety across runtimes** — Rust `Send`/`Sync` guarantees
-  vs caller's threading model, callback invocation from unexpected
-  threads, GIL assumptions (Python), main-thread requirements
-  (Swift/iOS)
-- **ABI stability** — struct layout changes breaking existing
-  callers, function signature changes without version bumps,
-  platform-specific alignment or padding differences
+  vs Result types, error information lost at boundaries, null
+  pointer returns without error signaling
+- **Thread safety across runtimes** — Rust `Send`/`Sync` vs
+  caller's threading model, callbacks from unexpected threads,
+  GIL assumptions (Python), main-thread requirements (Swift/iOS)
+- **ABI stability** — struct layout changes breaking callers,
+  signature changes without version bumps, platform-specific
+  alignment differences
 - **String encoding** — UTF-8 (Rust) vs UTF-16 (Swift/JS) vs
   null-terminated (C), missing encoding validation at boundaries
 
 Do NOT flag:
-- Pure Rust or pure Swift code quality issues (other specialists
-  handle those)
+- Pure Rust or pure Swift code quality (other specialists handle
+  those)
 - Style, naming, or formatting
-- Issues that don't involve a language boundary
 
-**Only flag issues at or affecting language boundaries.** If the
-code doesn't cross an FFI boundary, it's not in scope for this
-review. Every finding must identify which boundary is affected
-and what goes wrong at that boundary.
+**Every finding must identify which boundary is affected and what
+goes wrong at that boundary.** If the code doesn't cross an FFI
+boundary, it's not in scope.
 
 ### 3. Fetch What You Need
 
