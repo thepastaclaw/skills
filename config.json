@@ -11,13 +11,13 @@
       "owner": "dashpay",
       "name": "platform",
       "skill_path": "skills/platform/",
-      "enabled": false
+      "enabled": true
     },
     {
       "owner": "dashpay",
       "name": "grovedb",
       "skill_path": "skills/grovedb/",
-      "enabled": false
+      "enabled": true
     }
   ],
   "settings": {
