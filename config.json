@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "repos": [
     {
       "owner": "dashpay",
@@ -18,12 +18,45 @@
       "name": "grovedb",
       "skill_path": "skills/grovedb/",
       "enabled": true
+    },
+    {
+      "owner": "dashpay",
+      "name": "bls-signatures",
+      "skill_path": "skills/bls-signatures/",
+      "enabled": true
+    },
+    {
+      "owner": "dashpay",
+      "name": "dash-evo-tool",
+      "skill_path": "skills/dash-evo-tool/",
+      "enabled": true
     }
   ],
   "settings": {
     "max_concurrent_reviews": 3,
     "agent_timeout_minutes": 20,
     "comment_budget": 10,
-    "poll_interval_minutes": 3
-  }
+    "poll_interval_minutes": 3,
+    "selector_model": "openai/gpt-5.4"
+  },
+  "specialists": [
+    {
+      "id": "security-auditor",
+      "prompt": "prompts/security-auditor.md",
+      "repos": ["dashpay/platform", "dashpay/bls-signatures"],
+      "description": "Deep security analysis: cryptographic implementations, consensus safety, proof system soundness, race conditions in concurrent code, trust boundary violations, unsafe operations, timing attacks"
+    },
+    {
+      "id": "rust-quality",
+      "prompt": "prompts/rust-quality.md",
+      "repos": ["dashpay/platform", "dashpay/grovedb", "dashpay/dash-evo-tool"],
+      "description": "Rust quality review: error handling discipline (no unwraps in production), architectural patterns, idiomatic Rust usage, proper lifetimes/generics, test structure, performance patterns (unnecessary clones, allocation in hot paths)"
+    },
+    {
+      "id": "ffi-engineer",
+      "prompt": "prompts/ffi-engineer.md",
+      "repos": ["dashpay/platform"],
+      "description": "FFI and cross-language boundary review: memory safety across Swift/Rust/WASM boundaries, correct ownership transfer, FFI-safe types, panic safety across FFI, WASM binding correctness, ABI stability"
+    }
+  ]
 }
