@@ -17,7 +17,8 @@
       "owner": "dashpay",
       "name": "grovedb",
       "skill_path": "skills/grovedb/",
-      "enabled": true
+      "enabled": false,
+      "disabled_reason": "Repo ban: QuantumExplorer (2026-03-05) asked us to stop contributing to grovedb"
     },
     {
       "owner": "dashpay",
@@ -30,33 +31,152 @@
       "name": "dash-evo-tool",
       "skill_path": "skills/dash-evo-tool/",
       "enabled": true
+    },
+    {
+      "owner": "dashpay",
+      "name": "rust-dashcore",
+      "skill_path": "skills/rust-dashcore/",
+      "enabled": false,
+      "disabled_reason": "Manual one-off reviews only; automatic watching not enabled by default"
+    },
+    {
+      "owner": "dashpay",
+      "name": "dash-platform-website",
+      "skill_path": "skills/dash-platform-website/",
+      "enabled": true
+    },
+    {
+      "owner": "dashpay",
+      "name": "dashcore-lib",
+      "skill_path": "skills/dashcore-lib/",
+      "enabled": true
+    },
+    {
+      "owner": "dashpay",
+      "name": "evo-sdk-website",
+      "skill_path": "skills/evo-sdk-website/",
+      "enabled": true
+    },
+    {
+      "owner": "PastaPastaPasta",
+      "name": "yappr",
+      "skill_path": "skills/yappr/",
+      "enabled": true
+    },
+    {
+      "owner": "dashpay",
+      "name": "tenderdash",
+      "skill_path": "skills/tenderdash/",
+      "enabled": false,
+      "disabled_reason": "Lukasz requested no automatic TenderDash reviews; manual only when explicitly asked."
     }
   ],
   "settings": {
-    "max_concurrent_reviews": 3,
+    "max_concurrent_reviews": 2,
+    "priority_review_overflow_slots": 1,
     "agent_timeout_minutes": 20,
     "comment_budget": 10,
     "poll_interval_minutes": 3,
-    "selector_model": "openai/gpt-5.4"
+    "selector_model": "gpt-5.6-terra",
+    "debounce_minutes": 30
+  },
+  "review_model_policy": {
+    "name": "codex-blocker-gate-sonnet-final-v1",
+    "description": "Every exact head begins with logical Codex reviewer lanes and a fresh logical Codex verifier, all executed as independent read-only Claude Code CLI invocations. A deterministic, persisted checkpoint admits Opus only when the canonical validated blocker count is zero after policy application and complete prior-finding revalidation. Blockers produce a preliminary Codex-only REQUEST_CHANGES review and defer Opus. Zero blockers admit Opus and produce a combined final review. Persisted Sonnet-named policy identifiers, checkpoint/state keys, labels, and API fields remain compatibility aliases for this Opus phase. Logical agent identity, execution harness, auth, and exact backend model are recorded separately.",
+    "roles": ["general", "selected-specialists"],
+    "orchestrator": {"harness": "openclaw-agent", "model": "cliproxy/gpt-5.6-sol", "auth": "api-gateway", "reasoning": "high", "role": "orchestration-only", "is_reviewer": false, "is_verifier": false, "is_finding_source": false, "recorded_separately_from_sol_reviewer": true},
+    "codex_precheck": {
+      "reviewer": {"label": "codex", "agent": "codex", "model": "gpt-5.6-sol", "harness": "claude-code", "auth": "api-gateway", "reasoning": "high", "roles": ["general", "selected-specialists"], "launch": {"api_only": true, "read_only": true, "bare": true, "permission_mode": "plan", "effort": "high", "output_format": "text", "no_session_persistence": true, "print": true}},
+      "verifier": {"label": "codex", "agent": "codex", "model": "gpt-5.6-sol", "harness": "claude-code", "auth": "api-gateway", "reasoning": "high", "fresh_session": true, "launch": {"api_only": true, "read_only": true, "bare": true, "permission_mode": "plan", "effort": "high", "output_format": "text", "no_session_persistence": true, "print": true}},
+      "fail_closed": ["missing reviewer lane", "failed reviewer lane", "unparseable reviewer output", "missing verifier", "failed verifier", "unparseable verifier output", "incomplete prior-finding revalidation", "failed deterministic policy validation"],
+      "admit_sonnet_when": "canonical_validated_blocker_count == 0",
+      "non_blocking_severities_do_not_close_gate": ["suggestion", "nitpick"]
+    },
+    "sonnet_phase": {
+      "reviewer": {"label": "sonnet5", "agent": "claude", "model": "claude-opus-5", "harness": "claude-code", "auth": "api-gateway", "effort": "high", "roles": ["general", "selected-specialists"], "launch": {"api_only": true, "read_only": true, "bare": true, "permission_mode": "plan", "effort": "high", "output_format": "text", "no_session_persistence": true, "print": true}},
+      "first_admission_coverage": "merge_base..current_head",
+      "later_round_coverage": "last_sonnet_reviewed_sha..current_head",
+      "cumulative_reconciliation": true,
+      "last_reviewed_sha_independent": true,
+      "all_reviewer_lanes_failed": "fail_closed_no_final_coverage",
+      "verifier": {
+        "primary": {"label": "sonnet5", "agent": "claude", "model": "claude-opus-5", "harness": "claude-code", "auth": "api-gateway", "fresh_session": true, "launch": {"api_only": true, "read_only": true, "bare": true, "permission_mode": "plan", "effort": "high", "output_format": "text", "no_session_persistence": true, "print": true}},
+        "fallback": {"label": "codex", "agent": "codex", "model": "gpt-5.6-sol", "harness": "claude-code", "auth": "api-gateway", "reasoning": "high", "fresh_session": true, "launch": {"api_only": true, "read_only": true, "bare": true, "permission_mode": "plan", "effort": "high", "output_format": "text", "no_session_persistence": true, "print": true}},
+        "fallback_when": "Opus reviewer evidence exists but the primary Opus verifier fails or is unparseable",
+        "fallback_provenance_required": true
+      }
+    },
+    "publication": {
+      "preliminary": {"phase": "preliminary", "title": "Preliminary review — Codex only", "event": "REQUEST_CHANGES", "sonnet": "Opus not run (deferred by blocker gate; field name retained for compatibility)"},
+      "final": {"phase": "final", "title": "Final validation — Codex + Opus"},
+      "compatibility_marker": "<!-- thepastaclaw-review v1 -->",
+      "phase_marker": "<!-- thepastaclaw-review-phase v1 phase={preliminary|final} sha={head_sha} -->",
+      "same_sha_dedupe_is_phase_aware": true
+    },
+    "same_sha_human_reply": "may_trigger_fresh_codex_revalidation_then_opus_admission",
+    "manual_thread_resolution": "never_clears_gate",
+    "new_head": "restart_at_codex_precheck",
+    "opus": {"automatic_normal_path": true, "manual_or_experiment_only": false},
+    "provenance_rule": "Persist exact head, phase, decision, canonical blocker count, reviewer and verifier attempt IDs/logical agents/exact backend models/harnesses/auth/roles/PIDs/exit statuses/artifacts/status/parseability, prior-finding revalidation, deterministic policy result, Opus coverage range, Opus last-reviewed SHA through the persisted Sonnet-named compatibility fields, publication IDs, and fallback reason after every checkpoint. Logical agent compatibility identity and Claude Code execution identity must remain separate."
   },
   "specialists": [
     {
       "id": "security-auditor",
       "prompt": "prompts/security-auditor.md",
-      "repos": ["dashpay/platform", "dashpay/bls-signatures"],
+      "repos": [
+        "dashpay/platform",
+        "dashpay/bls-signatures",
+        "dashpay/dash-platform-website",
+        "dashpay/dashcore-lib"
+      ],
       "description": "Deep security analysis: cryptographic implementations, consensus safety, proof system soundness, race conditions in concurrent code, trust boundary violations, unsafe operations, timing attacks"
     },
     {
       "id": "rust-quality",
       "prompt": "prompts/rust-quality.md",
-      "repos": ["dashpay/platform", "dashpay/grovedb", "dashpay/dash-evo-tool"],
+      "repos": [
+        "dashpay/platform",
+        "dashpay/grovedb",
+        "dashpay/dash-evo-tool",
+        "dashpay/rust-dashcore"
+      ],
       "description": "Rust quality review: error handling discipline (no unwraps in production), architectural patterns, idiomatic Rust usage, proper lifetimes/generics, test structure, performance patterns (unnecessary clones, allocation in hot paths)"
     },
     {
       "id": "ffi-engineer",
       "prompt": "prompts/ffi-engineer.md",
-      "repos": ["dashpay/platform"],
+      "repos": [
+        "dashpay/platform",
+        "dashpay/rust-dashcore"
+      ],
       "description": "FFI and cross-language boundary review: memory safety across Swift/Rust/WASM boundaries, correct ownership transfer, FFI-safe types, panic safety across FFI, WASM binding correctness, ABI stability"
+    },
+    {
+      "id": "backport-reviewer",
+      "prompt": "prompts/backport-reviewer.md",
+      "repos": [
+        "dashpay/dash"
+      ],
+      "description": "Bitcoin Core backport prerequisite verification: compares upstream starting states vs Dash to detect missing intermediate PRs, identifies workarounds masking missing APIs/infrastructure, traces dependency chains. Activated for PRs with 'backport' in title or cherry-picks from bitcoin/bitcoin.",
+      "trigger_hint": "backport|cherry-pick|bitcoin#|Merge bitcoin"
+    },
+    {
+      "id": "tenderdash-consensus-security",
+      "prompt": "prompts/tenderdash-consensus-security.md",
+      "repos": [
+        "dashpay/tenderdash"
+      ],
+      "description": "TenderDash (Go) consensus and security review: BFT protocol correctness (propose/prevote/precommit, locking, +2/3 thresholds, double-sign / equivocation), validator set + LLMQ quorum signature verification (BLS threshold sigs, quorum hash binding, chain-id and domain separation), vote/commit/block/header validation, evidence handling, light client safety, ABCI app-vs-consensus trust boundary, RPC and P2P input validation, DoS / resource exhaustion (unbounded allocations, slow peers, mempool flooding), Go concurrency (data races, deadlocks, goroutine leaks), nondeterminism in consensus-critical paths.",
+      "trigger_hint": "consensus|vote|commit|validator|quorum|bls|abci|p2p|rpc|evidence|light client|chain-id|sign"
+    },
+    {
+      "id": "dash-core-commit-history",
+      "prompt": "prompts/dash-core-commit-history.md",
+      "repos": [
+        "dashpay/dash"
+      ],
+      "always_run": true,
+      "description": "Dash Core commit-history hygiene review (no code correctness). Dashpay/dash merges PR commits into develop without squashing, so the ordered stack lands in permanent history. Flags fixup/wip/no-op commits, obviously separate commits that should be squashed, misleading commit messages, mixed unrelated changes in a single commit visible from per-commit stats, and merge/rebase noise \u2014 while leaving legitimate multi-commit stacks (refactor+feature+tests, backport/cherry-pick series, justified mechanical follow-ups) alone."
     }
   ]
 }
