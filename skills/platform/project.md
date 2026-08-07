@@ -33,7 +33,7 @@ dpp → drive → drive-abci → dash-sdk
 
 ### DPP (Dash Platform Protocol)
 - Defines Identity, DataContract, Document, StateTransition — storage-agnostic
-- 80+ feature flags for conditional compilation
+- Dozens of feature flags (~77 as of Aug 2026) for conditional compilation
 - Shared between client and platform (the "protocol library")
 
 ### Drive
@@ -53,7 +53,7 @@ dpp → drive → drive-abci → dash-sdk
 
 ### platform-version
 - Versioning backbone — every consensus-critical method has a version number
-- Currently 12 protocol versions (v1–v12), stored as static `PlatformVersion` structs in a `PLATFORM_VERSIONS` array
+- Protocol versions are stored as static `PlatformVersion` structs in a `PLATFORM_VERSIONS` array (v1–v14 as of Aug 2026; count grows — check the array, don't trust this line)
 - Looked up by index: `PlatformVersion::get(protocol_version)`
 
 ## Versioning System
@@ -115,25 +115,22 @@ fn update_contract(...) -> Result<(), Error> {
 
 ```rust
 pub enum StateTransition {
-    DataContractCreate(DataContractCreateTransition),
-    DataContractUpdate(DataContractUpdateTransition),
-    Batch(BatchTransition),                    // documents + tokens
-    IdentityCreate(IdentityCreateTransition),
-    IdentityTopUp(IdentityTopUpTransition),
-    IdentityCreditWithdrawal(IdentityCreditWithdrawalTransition),
-    IdentityUpdate(IdentityUpdateTransition),
-    IdentityCreditTransfer(IdentityCreditTransferTransition),
-    MasternodeVote(MasternodeVoteTransition),
-    // address-based variants (v10+)
-    AddressFundsTransfer(...),
-    AddressCreditWithdrawal(...),
-    AddressDocumentsBatch(...),
-    AddressIdentityCreate(...),
-    AddressIdentityCreditWithdrawal(...),
+    DataContractCreate, DataContractUpdate,
+    Batch,                                   // documents + tokens
+    IdentityCreate, IdentityTopUp, IdentityCreditWithdrawal,
+    IdentityUpdate, IdentityCreditTransfer,
+    MasternodeVote,
+    // address-based (v11+)
+    IdentityCreditTransferToAddresses, IdentityCreateFromAddresses,
+    IdentityTopUpFromAddresses, AddressFundsTransfer,
+    AddressFundingFromAssetLock, AddressCreditWithdrawal,
+    // shielded pool (v12+)
+    Shield, ShieldedTransfer, Unshield, ShieldFromAssetLock,
+    ShieldedWithdrawal, IdentityCreateFromShieldedPool,
 }
 ```
 
-`BatchTransition` aggregates multiple document/token operations into one transition. Address-based variants use UTXO-style input/output instead of identity-based signing.
+(21 variants; authoritative source `packages/rs-dpp/src/state_transition/mod.rs` — regenerate from there rather than trusting this list.) `BatchTransition` aggregates multiple document/token operations into one transition. Address-based variants use UTXO-style inputs/outputs instead of identity-key signing; shielded variants authenticate with zero-knowledge proofs. Inserting or reordering variants anywhere but the end changes the binary wire encoding — treat it as consensus-breaking.
 
 ### Validation Pipeline (10 stages)
 
@@ -277,7 +274,7 @@ pub enum LowLevelDriveOperation {
 
 ### Drive Errors (internal, single-node)
 - Not serialized, not consensus-critical
-- 13 variants organized by subsystem: `GroveDB`, `Contract`, `Document`, `Identity`, `Fee`, `Proof`, etc.
+- Variants organized by subsystem (14 as of Aug 2026): `GroveDB`, `Contract`, `Document`, `Identity`, `Fee`, `Proof`, etc.
 - Large error types wrapped in `Box<>` to keep the enum small
 - Severity spectrum: `CorruptedCodeExecution` (bug), `CorruptedElementType` (data corruption), `NotFound` (missing data)
 
@@ -307,8 +304,8 @@ Four ABCI entry points:
 3. **process_proposal** — validators verify proposed block
 4. **finalize_block** — commit validated block to state
 
-### run_block_proposal (18 steps)
-The core block processing sequence:
+### run_block_proposal
+The core block processing sequence (`execution/engine/run_block_proposal/`; anything that makes prepare_proposal and process_proposal disagree is a chain halt):
 1. Initialize GroveDB transaction
 2. Determine epoch info and fee multipliers
 3. Decode/validate state transitions
@@ -411,7 +408,7 @@ cargo test -p drive-abci --test='*'     # Test specific crate (integration tests
 - **Rust edition:** 2021
 - **MSRV:** 1.92
 - **PR format:** Conventional Commits
-- iOS development: build `packages/rs-sdk/` with `build-ios-direct.sh`
+- iOS development: `packages/swift-sdk/build_ios.sh` (setup: `setup_ios_build.sh`)
 
 ## Design Philosophy
 

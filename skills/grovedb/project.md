@@ -28,8 +28,8 @@ Responsibilities:
 
 - **Path-based operations**: insert, get, delete addressed by `(path, key)`
   pairs where `path` is a vector of byte-string segments
-- **Element management**: 8 element types including references and aggregate
-  trees (see Element System below)
+- **Element management**: 15 element types (as of Aug 2026) including references
+  and aggregate trees (see Element System below)
 - **Reference resolution**: follows cross-tree pointers with hop limits and
   cycle detection
 - **Batch processing**: atomic multi-subtree operations via two-phase
@@ -82,18 +82,18 @@ Abstracts RocksDB with prefixed storage for subtree isolation.
 
 ## Element System
 
-8 element types, each serialized and stored as values in Merk nodes:
+`Element` (`grovedb-element/src/element/mod.rs`) has 15 variants as of Aug 2026 — the set has grown well past the original eight; check the enum before asserting a variant list is complete. Serialized and stored as values in Merk nodes:
 
-| Element | Description | Use Case |
-|---------|-------------|----------|
-| `Item` | Raw key-value byte storage | Basic data storage (identity fields, contract documents) |
-| `Reference` | Pointer to another element anywhere in the grove | Cross-tree links, secondary indexes pointing to primary data |
-| `Tree` | Subtree root — creates a new Merk instance beneath this node | Hierarchical organization (e.g., an identity's "keys" subtree) |
-| `SumItem` | Item that contributes an integer value to its parent's sum | Individual balance entries, vote counts |
-| `SumTree` | Subtree that maintains the sum of all descendant `SumItem` values | Aggregate balance tracking (total platform credits) |
-| `BigSumTree` | Like `SumTree` but with 256-bit (i128) sums for large values | High-precision aggregate accounting |
-| `CountTree` | Subtree that counts the number of elements it contains | Cardinality tracking (number of keys, number of documents) |
-| `CountSumTree` | Combined counting and summing — tracks both element count and value sum | Cases needing both cardinality and aggregate value |
+| Group | Variants | Use Case |
+|-------|----------|----------|
+| Plain data | `Item`, `ItemWithSumItem` | Basic data storage (identity fields, contract documents) |
+| Pointer | `Reference` | Cross-tree links, secondary indexes pointing to primary data |
+| Subtree | `Tree` | Hierarchical organization (e.g., an identity's "keys" subtree) |
+| Sum | `SumItem`, `SumTree`, `BigSumTree` | Balance entries and aggregate tracking (BigSumTree: i128 sums) |
+| Count | `CountTree`, `CountSumTree`, `ProvableCountTree`, `ProvableCountSumTree` | Cardinality tracking, provable counts |
+| Specialized trees | `CommitmentTree`, `MmrTree`, `BulkAppendTree`, `DenseAppendOnlyFixedSizeTree` | Commitments, append-only structures |
+
+Adding a variant touches serialization, cost prediction, proof encoding, and version gating together — a change that adds one without all four is incomplete.
 
 Aggregate tree types (`SumTree`, `BigSumTree`, `CountTree`, `CountSumTree`)
 store their aggregate value in the Merk node's feature type field, which
@@ -126,7 +126,7 @@ available at the root without scanning descendants.
    up to a root height, append the parent's path, then follow additional
    segments. Used for pattern-based references in structured data.
 
-7. **UtilityReference** — system-level references for internal bookkeeping.
+7. **RemovedCousinReference** — cousin path where a segment was removed (note: an older version of this doc listed a nonexistent `UtilityReference`; check `grovedb/src/reference_path.rs` for the authoritative set).
 
 ### Reference Resolution
 
@@ -148,15 +148,15 @@ References are resolved by the `follow_reference` function in
 Every operation accumulates an `OperationCost` struct (from the `costs` crate):
 
 ```rust
-OperationCost {
-    seek_count: u16,             // Number of RocksDB seeks (disk I/O)
-    storage_loaded_bytes: u32,   // Bytes read from storage
-    storage_cost: StorageCost {  // Write cost breakdown
-        added_bytes: u32,        //   New bytes written
-        replaced_bytes: u32,     //   Bytes overwritten
-        removed_bytes: StorageRemovedBytes,  // Bytes freed
-    },
-    hash_node_calls: u32,        // Blake3/hash operations performed
+pub struct OperationCost {
+    pub seek_count: u32,             // RocksDB seeks (disk I/O)
+    pub storage_cost: StorageCost,   // added_bytes: u32 / replaced_bytes: u32
+                                     //   / removed_bytes: StorageRemovedBytes
+    pub storage_loaded_bytes: u64,   // bytes read from storage
+    pub hash_node_calls: u32,        // Blake3 node hashes
+    pub sinsemilla_hash_calls: u32,  // Sinsemilla (elliptic-curve) hashes for
+                                     // commitment tree anchors — far more
+                                     // expensive than Blake3
 }
 ```
 
@@ -206,7 +206,7 @@ GroveDB generates **composite proofs** that span multiple subtrees:
   sequentially
 - **Independent verification**: proofs are self-contained — a verifier needs
   only the proof bytes and the expected root hash, not the database
-- **Serialization**: proofs use a compact encoding (`merk/src/proofs/encoding.rs`)
+- **Serialization**: proofs use a compact encoding (`merk/src/proofs/` — `mod.rs` and siblings; the old `encoding.rs` path is gone)
   optimized for network transmission
 
 ### Proof Properties
@@ -369,7 +369,7 @@ The `Walker` (`merk/src/tree/walk/`) provides lazy traversal:
 - `merk/src/tree/kv.rs` — KV struct with value_defined_cost types
 - `merk/src/tree/tree_feature_type.rs` — `TreeFeatureType`, `AggregateData`
 - `merk/src/proofs/query/mod.rs` — query execution and proof generation
-- `merk/src/proofs/encoding.rs` — proof serialization
+- `merk/src/proofs/` — proof generation and serialization
 - `merk/src/owner.rs` — reference counting wrapper
 
 ### Storage Abstraction

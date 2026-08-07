@@ -1,75 +1,74 @@
 # Dash Platform — Review Skill
 
-## Code Style
+How to weigh findings on `dashpay/platform`. The architectural rules themselves
+are defined in the core review context that precedes this file; this file sets
+severity, scope, and where to look hardest. It does not restate the rules.
 
-- `cargo fmt` enforced
-- `cargo clippy` required — warnings are errors
-- Rust edition 2021
+## Severity Policy
 
-## Versioning (Consensus-Critical)
+**Blocking** — the invariants named in the core context, violated:
+- Dependency direction (DPP → Drive → Drive-ABCI → SDK) reversed
+- `server` feature of Drive enabled from a client crate
+- A consensus-critical method with no `platform_version` dispatch, or an
+  existing `v{N}` implementation edited in place
+- Consensus error variants reordered, or a code reused/shifted
+- `StateTransition` (or any platform-serialized enum) variants inserted
+  anywhere but the end
+- A state-transition validation stage skipped or reordered
+- State reads leaking into `into_high_level_drive_operations`, or writes
+  happening outside action application
+- Cost/fee divergence between estimation and execution paths, or between
+  `prepare_proposal` and `process_proposal`
 
-Every consensus-critical method must dispatch on `platform_version`.
-Missing version dispatch is a **blocking** issue. The
-`PlatformVersion` struct controls which code path executes at each
-protocol version. New consensus methods must add version match arms.
+**Suggestion** — correctness or maintainability issues that do not put
+consensus at risk: missing error context, avoidable allocations on hot paths,
+unclear ownership, missing test coverage for a non-consensus branch.
 
-## Feature Flag Hygiene
+**Nitpick** — naming, comment wording, formatting `cargo fmt` would not catch.
 
-- Never enable `server` feature of Drive in client crates
-  (dash-sdk, etc.) — this is **blocking**
-- Check that feature flags are correctly gated
-- DPP has 80+ feature flags; ensure new code respects existing gates
-
-## Dependency Direction
-
-Violations are **blocking**:
-- DPP must not import Drive
-- Drive must not import Drive-ABCI
-- Client crates must not depend on server-only code
+Do not flag what tooling already enforces: `cargo fmt` and `cargo clippy`
+(warnings are errors) run in CI.
 
 ## Error Handling
 
-- Use `?` operator with proper error types
+- Use the `?` operator with proper error types
 - No `unwrap()` in production code
-- `.expect()` only with documented justification explaining why the
-  value is guaranteed to exist
-
-## State Transition Validation
-
-State transitions must follow the validation pipeline:
-1. `check_tx` — initial validation
-2. `process_proposal` — proposal-time validation
-3. `finalize_block` — final application
-
-Skipping pipeline stages is a consensus violation.
+- `.expect()` only with a documented justification explaining why the value is
+  guaranteed to exist. "It can't be None here" without a stated invariant is not
+  a justification.
 
 ## Cost Tracking
 
-- Operations must return `CostResult`
-- Cost miscalculations are consensus-critical — all nodes must agree
-  on costs
-- Propagate costs correctly through the call chain
+- Operations must return `CostResult` and propagate costs through the whole call
+  chain, including early-return paths
+- Cost miscalculations are consensus-critical — every node must compute the same
+  cost for the same operation
+- New CPU-heavy work must push a corresponding cost operation, not just run
 
 ## Proof Correctness
 
 Changes to proof generation or verification need extra scrutiny:
-- Proof must be deterministic across all nodes
+- Proofs must be deterministic across all nodes
 - Verification must match generation exactly
 - Any divergence breaks consensus
 
 ## Test Expectations
 
-- Unit tests in `#[cfg(test)]` modules
-- Integration tests in `tests/` directories
-- Strategy tests for complex multi-step scenarios
-- Consensus changes must have tests
+- Consensus-affecting changes must have tests; a new versioned method needs
+  coverage of the new version *and* evidence the old version still behaves as
+  before
+- Unit tests in `#[cfg(test)]` modules; integration tests in `tests/`
+- Strategy tests for multi-block scenarios
 
-## System Contracts
+## Consensus-Critical Code Areas
 
-Changes to system contracts need:
-- Version bumps
-- Migration paths for existing data
-- Consideration of upgrade ordering
+Extra scrutiny required for:
+- `packages/rs-drive-abci/` — block execution and state transition processing
+- `packages/rs-drive/` — state storage and proof generation
+- `packages/rs-dpp/` — data model validation and serialization
+- `packages/rs-platform-version/` — version dispatch tables
+- `packages/data-contracts/` and the per-contract crates — system contract
+  definitions and migrations
 
 ## Known Patterns / Accepted Exceptions
 
@@ -78,12 +77,3 @@ Changes to system contracts need:
 ## Things NOT to Flag
 
 (Populated by feedback loop as recurring false positives emerge.)
-
-## Consensus-Critical Code Areas
-
-Extra scrutiny required for:
-- `drive-abci/` — block execution and state transition processing
-- `drive/` — state storage and proof generation
-- `dpp/` — data model validation and serialization
-- `platform-version/` — version dispatch tables
-- System contract definitions and migrations

@@ -1,72 +1,69 @@
 # GroveDB — Review Skill
 
-## Code Style
+How to weigh findings on `dashpay/grovedb`. The architectural rules themselves
+are defined in the core review context that precedes this file; this file sets
+severity, scope, and where to look hardest. It does not restate the rules.
 
-- `cargo fmt` enforced
-- `cargo clippy` with `-D warnings` — all warnings are errors
+## Severity Policy
 
-## Cryptographic Correctness (Highest Priority)
+**Blocking** — the invariants named in the core context, violated:
+- Proof generation changed without the matching verification change (or vice
+  versa), or proof output made non-deterministic
+- A hash, encoding, or root-propagation change that is not `GroveVersion`-gated
+- Merk invariants broken: balance factor outside `{-1, 0, 1}`, a rotation that
+  loses sorted order, or an aggregate that fails to propagate on rebalance
+- Link state machine skipped — reading a hash from a `Modified` link, or
+  committing without passing through `Uncommitted`
+- Cost divergence: uncharged work, cost dropped by a bare `?` where a
+  `cost_return_on_error!` macro belongs, or estimated cost that does not match
+  executed cost
+- Reference resolution without hop limit or cycle detection, or hops that are
+  not charged
+- A batch that can leave state partially applied
+- Storage prefix generation made non-deterministic, or prefix isolation broken
 
-Cryptographic integrity is paramount in GroveDB:
-- Proof generation must be deterministic
-- Hash consistency across all operations
-- Merkle tree invariants must hold at all times
-- Any proof integrity violation breaks Platform consensus
+**Suggestion** — correctness or maintainability issues off the consensus path:
+missing error context, an over-broad error variant, avoidable tree opens,
+missing coverage for a non-consensus branch.
 
-## AVL Tree Invariants
+**Nitpick** — naming, comment wording, formatting `cargo fmt` would not catch.
 
-- Balance factor must always be in {-1, 0, 1}
-- Rotations must preserve sorted order and update hashes
-- Link state transitions must follow the state machine:
-  Reference → Loaded → Modified → Uncommitted → Reference
-
-## Cost Tracking
-
-- Cost miscalculations affect Platform consensus — all nodes must
-  agree on operation costs
-- Every operation must accurately track seek_count,
-  storage_loaded_bytes, storage_cost, hash_node_calls
-- Use `cost_return_on_error!` macro for error handling that
-  preserves accumulated costs
-
-## Reference Resolution
-
-- Must enforce hop limits to prevent infinite chains
-- Must prevent reference cycles
-- Must handle missing targets gracefully with proper errors
-- Reference resolution costs must be tracked accurately
+Do not flag what tooling already enforces: `cargo fmt` and
+`cargo clippy -- -D warnings` run in CI.
 
 ## Error Handling
 
-- Use `cost_return_on_error!` macro for cost-aware error propagation
+- Use `cost_return_on_error!` (or its no-add/into variants) for cost-aware
+  propagation; a bare `?` on a cost-returning call silently drops accumulated
+  cost
 - Proper `Error` types throughout — no `unwrap()` in production code
-- `.expect()` only with documented justification
-
-## Batch Atomicity
-
-- Batch operations must be all-or-nothing
-- Partial failures must not corrupt state
-- Two-phase processing: validate all operations before applying any
-- Rollback must leave the tree in a consistent state
-
-## Storage Layer
-
-- Prefix isolation must be maintained — no cross-subtree data leakage
-- Blake3 prefix generation must be deterministic
-- Storage type selection must be correct for the data category
-
-## Version Compatibility
-
-- Changes must work across grove versions
-- Version dispatch must be correct
+- `.expect()` only with a documented justification naming the invariant that
+  guarantees the value
 
 ## Test Expectations
 
-- Proof verification tests for any proof-related changes
-- Cost accuracy tests verifying exact cost calculations
-- Reference integrity tests (cycles, hop limits, missing targets)
-- Batch atomicity tests (partial failure, rollback)
-- AVL balance tests after insertions/deletions
+- Proof verification tests for any proof-related change
+- Cost accuracy tests verifying exact cost calculations, including the
+  estimated-cost path
+- Reference integrity tests: cycles, hop limits, missing targets
+- Batch atomicity tests: partial failure and rollback
+- AVL balance tests after insertions and deletions
+- Multi-`GroveVersion` tests when behavior is version-gated, so the old path
+  stays pinned
+
+## Security-Critical Areas
+
+Extra scrutiny required for:
+- **Proof generation/verification** (`grovedb/src/operations/proof/`,
+  `merk/src/proofs/`) — any change can break consensus
+- **Reference resolution** (`grovedb/src/reference_path.rs`,
+  `grovedb/src/operations/get/`) — cycle and hop-limit vulnerabilities
+- **Batch operations** (`grovedb/src/batch/`, `grovedb/src/merk_cache.rs`) —
+  atomicity and rollback correctness
+- **Storage prefix generation** (`storage/src/rocksdb_storage/`) — subtree
+  isolation integrity
+- **Merk rotations and hash updates** (`merk/src/tree/`) — tree invariant and
+  aggregate preservation
 
 ## Known Patterns / Accepted Exceptions
 
@@ -75,12 +72,3 @@ Cryptographic integrity is paramount in GroveDB:
 ## Things NOT to Flag
 
 (Populated by feedback loop as recurring false positives emerge.)
-
-## Security-Critical Areas
-
-Extra scrutiny required for:
-- **Proof generation/verification** — any change can break consensus
-- **Reference resolution** — cycle/hop vulnerabilities
-- **Batch operations** — atomicity and rollback correctness
-- **Storage prefix generation** — subtree isolation integrity
-- **Merk rotations and hash updates** — tree invariant preservation
