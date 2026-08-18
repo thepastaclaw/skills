@@ -14,6 +14,12 @@
       "enabled": true
     },
     {
+      "owner": "thephez",
+      "name": "docs-platform",
+      "skill_path": "skills/docs-platform/",
+      "enabled": true
+    },
+    {
       "owner": "dashpay",
       "name": "grovedb",
       "skill_path": "skills/grovedb/",
@@ -127,9 +133,10 @@
         "dashpay/platform",
         "dashpay/bls-signatures",
         "dashpay/dash-platform-website",
-        "dashpay/dashcore-lib"
+        "dashpay/dashcore-lib",
+        "thephez/docs-platform"
       ],
-      "description": "Deep security analysis: cryptographic implementations, consensus safety, proof system soundness, race conditions in concurrent code, trust boundary violations, unsafe operations, timing attacks"
+      "description": "Deep security analysis: cryptographic implementations, consensus safety, proof system soundness, race conditions in concurrent code, web/DOM injection, remote dependency boundaries, trust boundary violations, unsafe operations, timing attacks"
     },
     {
       "id": "rust-quality",
