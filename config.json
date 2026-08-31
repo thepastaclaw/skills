@@ -9,6 +9,12 @@
     },
     {
       "owner": "dashpay",
+      "name": "dashwallet-ios",
+      "skill_path": "skills/dashwallet-ios/",
+      "enabled": true
+    },
+    {
+      "owner": "dashpay",
       "name": "platform",
       "skill_path": "skills/platform/",
       "enabled": true
@@ -134,6 +140,7 @@
         "dashpay/bls-signatures",
         "dashpay/dash-platform-website",
         "dashpay/dashcore-lib",
+        "dashpay/dashwallet-ios",
         "thephez/docs-platform"
       ],
       "description": "Deep security analysis: cryptographic implementations, consensus safety, proof system soundness, race conditions in concurrent code, web/DOM injection, remote dependency boundaries, trust boundary violations, unsafe operations, timing attacks"
@@ -154,7 +161,8 @@
       "prompt": "prompts/ffi-engineer.md",
       "repos": [
         "dashpay/platform",
-        "dashpay/rust-dashcore"
+        "dashpay/rust-dashcore",
+        "dashpay/dashwallet-ios"
       ],
       "description": "FFI and cross-language boundary review: memory safety across Swift/Rust/WASM boundaries, correct ownership transfer, FFI-safe types, panic safety across FFI, WASM binding correctness, ABI stability"
     },
