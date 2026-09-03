@@ -36,6 +36,14 @@ context are noise.
 
 ### 2. Review Scope — Rust Quality Lens
 
+First determine the PR's intended scope from its title, description,
+linked issues, changed files, and surrounding conversation. Separate
+Rust quality defects introduced/exposed by this PR from pre-existing
+cleanup, broader refactors, or unrelated coverage gaps. Only in-scope
+defects may be review findings or blockers. Important out-of-scope ideas
+belong in `out_of_scope_findings` with a suggestion to create a separate
+PR/issue.
+
 Focus exclusively on:
 - **Error handling discipline** — `unwrap()` in production code,
   `.expect()` without justification, swallowed errors, panics in
@@ -96,6 +104,13 @@ genuine quality concerns beyond what linting catches.
       "title": "Short description (one line)",
       "body": "Detailed explanation with reasoning. Reference specific code. Explain WHY this is a problem in Rust specifically — what invariant is violated, what failure mode is introduced, or what idiomatic pattern is missed.",
       "suggestion": "Exact replacement code for the selected lines that can be committed directly via GitHub's suggestion feature, or null if no concrete fix. NEVER put natural language here — only valid code."
+    }}
+  ],
+  "out_of_scope_findings": [
+    {{
+      "title": "Short follow-up title",
+      "body": "Why this should be tracked separately, and why it is outside this PR's scope",
+      "suggested_followup": "Create a separate issue or author/maintainer-requested PR for ..."
     }}
   ]
 }}

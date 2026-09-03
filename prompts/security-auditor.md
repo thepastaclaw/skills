@@ -36,6 +36,13 @@ context are usually false positives.
 
 ### 2. Review Scope — Security Lens
 
+First determine the PR's intended scope from its title, description,
+linked issues, changed files, and surrounding conversation. Separate
+security defects introduced/exposed by this PR from pre-existing or
+adjacent hardening work. Only in-scope security defects may be review
+findings or blockers. Important out-of-scope hardening ideas belong in
+`out_of_scope_findings` with a suggestion to create a separate issue or author/maintainer-requested PR.
+
 Focus exclusively on:
 - **Cryptographic correctness** — signature verification, hash
   functions, key derivation, nonce reuse, non-constant-time
@@ -94,6 +101,13 @@ file paths and line numbers.
       "title": "Short description (one line)",
       "body": "Detailed explanation with reasoning. Reference specific code. Explain the attack scenario or security impact — WHO can exploit this, HOW, and WHAT is the consequence.",
       "suggestion": "Exact replacement code for the selected lines that can be committed directly via GitHub's suggestion feature, or null if no concrete fix. NEVER put natural language here — only valid code."
+    }}
+  ],
+  "out_of_scope_findings": [
+    {{
+      "title": "Short follow-up title",
+      "body": "Why this should be tracked separately, and why it is outside this PR's scope",
+      "suggested_followup": "Create a separate issue or author/maintainer-requested PR for ..."
     }}
   ]
 }}

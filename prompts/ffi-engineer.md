@@ -37,6 +37,13 @@ FFI findings without understanding of both sides are usually wrong.
 
 ### 2. Review Scope — FFI/Cross-Language Lens
 
+First determine the PR's intended scope from its title, description,
+linked issues, changed files, and surrounding conversation. Separate FFI
+defects introduced/exposed by this PR from pre-existing interop debt or
+broader binding cleanup. Only in-scope defects may be review findings or
+blockers. Important out-of-scope ideas belong in `out_of_scope_findings`
+with a suggestion to create a separate issue or author/maintainer-requested PR.
+
 Focus exclusively on:
 - **Memory ownership across boundaries** —
   `Box::into_raw`/`Box::from_raw` pairing, double-free,
@@ -103,6 +110,13 @@ language boundaries.
       "title": "Short description (one line)",
       "body": "Detailed explanation with reasoning. Reference specific code on BOTH sides of the boundary where applicable. Explain WHICH boundary is affected, WHAT goes wrong, and WHAT the consequence is (crash, leak, UB, data corruption).",
       "suggestion": "Exact replacement code for the selected lines that can be committed directly via GitHub's suggestion feature, or null if no concrete fix. NEVER put natural language here — only valid code."
+    }}
+  ],
+  "out_of_scope_findings": [
+    {{
+      "title": "Short follow-up title",
+      "body": "Why this should be tracked separately, and why it is outside this PR's scope",
+      "suggested_followup": "Create a separate issue or author/maintainer-requested PR for ..."
     }}
   ]
 }}

@@ -83,71 +83,49 @@
 Backport PRs (titles starting with `backport:` or containing
 `Merge bitcoin#`) require a **different review approach** than
 regular feature PRs. The code changes originated upstream in
-Bitcoin Core and were already reviewed there — re-reviewing the
-behavior changes is mostly unnecessary.
+Bitcoin Core and were already reviewed there.
 
-### Review method:
+**A dedicated backport-reviewer specialist handles prerequisite
+analysis.** General review agents should focus only on:
 
-For each backported upstream PR, compare the upstream commit(s)
-against the Dash commit(s) side by side:
+1. **Critical correctness** — will this compile? Are there
+   obvious runtime errors introduced by the merge resolution?
+2. **Dash-specific interaction** — does the backported change
+   break or conflict with Dash subsystems (LLMQ, evo,
+   governance, CoinJoin, etc.)? If the upstream change modifies
+   validation, networking, or wallet code, verify Dash extensions
+   still work correctly.
+3. **Test adaptation** — were Bitcoin Core tests properly adapted
+   for Dash parameters (block times, reward structure, etc.)?
+4. **`non-backported.txt`** — new Dash-specific files need to be
+   listed here.
 
-1. **Fetch the upstream diff** — get the original Bitcoin Core PR
-   diff (from the `bitcoin#NNNNN` reference in the title/body)
-2. **Compare with the Dash commit** — look at the individual Dash
-   commit that corresponds to that upstream change (not the full
-   PR diff, which may contain multiple backports)
-3. **Focus on differences** — anything that is identical to
-   upstream can be glossed over (already reviewed by Bitcoin Core
-   maintainers). Dive into anything that differs:
-   - Was the difference a necessary Dash adaptation?
-   - Was something accidentally dropped or incorrectly resolved?
-   - Was Dash-specific code in the same area preserved correctly?
+### What general agents should NOT do on backport PRs:
 
-### What to check in backport PRs:
-
-1. **Upstream-to-Dash delta:** The differences between the
-   upstream commit and the Dash commit are the primary review
-   target. Identical code = already reviewed upstream, skip it.
-   Different code = examine closely.
-
-2. **Missing prerequisites:** Does this backport depend on earlier
-   Bitcoin Core changes that haven't been backported yet? Look for:
-   - References to functions/types that don't exist in the Dash
-     codebase
-   - Changed function signatures that don't match callers
-   - Missing `#include` for newly used headers
-
-3. **Dash-specific interaction:** Does the backported change
-   interact with Dash-specific subsystems (LLMQ, evo, governance,
-   etc.)? If the upstream change modifies validation, networking,
-   or wallet code, check that the Dash extensions still work
-   correctly after the merge.
-
-4. **`non-backported.txt` updates:** If the backport adds new
-   Dash-specific files (e.g., adaptation layers), they must be
-   added to `test/util/data/non-backported.txt`.
-
-5. **Test adaptation:** Were Bitcoin Core tests properly adapted
-   for Dash? Tests that reference Bitcoin-specific behavior may
-   need adjustment for Dash parameters (block times, reward
-   structure, etc.).
-
-### What NOT to review in backport PRs:
-
-- **Upstream behavior changes** — these were reviewed by Bitcoin
-  Core maintainers. Don't second-guess upstream design decisions
-  unless they are critical/consensus-affecting in the Dash context.
-- **Upstream code style** — backports preserve original formatting.
-- **Upstream commit messages** — these preserve original authorship.
+- **Do NOT perform prerequisite analysis** — the backport-reviewer
+  specialist owns this. Don't trace upstream dependency chains or
+  compare starting states.
+- **Do NOT re-review upstream behavior changes** — these were
+  reviewed by Bitcoin Core maintainers. Don't second-guess
+  upstream design decisions unless they are critical/consensus-
+  affecting in the Dash context.
+- **Do NOT flag upstream code style** — backports preserve
+  original formatting.
+- **Do NOT flag cosmetic divergences** from upstream — branding
+  changes, different defaults, Dash-specific parameters are all
+  expected.
 
 ### When to flag in backport PRs:
 
-- Only flag issues that are **critical** (security, consensus) or
-  specific to the **Dash adaptation** (merge conflicts, missing
-  prerequisites, broken Dash-specific features).
-- Use severity `blocking` only for merge errors or missing
-  prerequisites that would cause build/runtime failures.
-- Prefer `suggestion` severity for potential interaction concerns.
+- **blocking** — merge resolution error that will cause build
+  failure or runtime crash. Dash-specific code broken by the
+  backport. Consensus safety issue.
+- **suggestion** — potential Dash subsystem interaction concern.
+  Test adaptation that might need Dash-specific adjustment.
+- **nitpick** — minor observation about the adaptation quality.
+
+Keep findings minimal and high-signal. The backport-reviewer
+specialist handles the thorough upstream comparison work.
 
 ## Consensus-Critical Code Areas
 

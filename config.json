@@ -23,7 +23,8 @@
       "owner": "thephez",
       "name": "docs-platform",
       "skill_path": "skills/docs-platform/",
-      "enabled": true
+      "enabled": false,
+      "disabled_reason": "Explicit-request-only; automatic watching not enabled by default"
     },
     {
       "owner": "dashpay",
@@ -79,57 +80,174 @@
       "owner": "dashpay",
       "name": "tenderdash",
       "skill_path": "skills/tenderdash/",
-      "enabled": false,
-      "disabled_reason": "Lukasz requested no automatic TenderDash reviews; manual only when explicitly asked."
+      "enabled": true
     }
   ],
   "settings": {
     "max_concurrent_reviews": 2,
     "priority_review_overflow_slots": 1,
-    "agent_timeout_minutes": 20,
+    "agent_timeout_minutes": 180,
     "comment_budget": 10,
     "poll_interval_minutes": 3,
     "selector_model": "gpt-5.6-terra",
     "debounce_minutes": 30
   },
   "review_model_policy": {
-    "name": "codex-blocker-gate-sonnet-final-v1",
-    "description": "Every exact head begins with logical Codex reviewer lanes and a fresh logical Codex verifier, all executed as independent read-only Claude Code CLI invocations. A deterministic, persisted checkpoint admits Opus only when the canonical validated blocker count is zero after policy application and complete prior-finding revalidation. Blockers produce a preliminary Codex-only REQUEST_CHANGES review and defer Opus. Zero blockers admit Opus and produce a combined final review. Persisted Sonnet-named policy identifiers, checkpoint/state keys, labels, and API fields remain compatibility aliases for this Opus phase. Logical agent identity, execution harness, auth, and exact backend model are recorded separately.",
-    "roles": ["general", "selected-specialists"],
-    "orchestrator": {"harness": "openclaw-agent", "model": "cliproxy/gpt-5.6-sol", "auth": "api-gateway", "reasoning": "high", "role": "orchestration-only", "is_reviewer": false, "is_verifier": false, "is_finding_source": false, "recorded_separately_from_sol_reviewer": true},
-    "codex_precheck": {
-      "reviewer": {"label": "codex", "agent": "codex", "model": "gpt-5.6-sol", "harness": "claude-code", "auth": "api-gateway", "reasoning": "high", "roles": ["general", "selected-specialists"], "launch": {"api_only": true, "read_only": true, "bare": true, "permission_mode": "plan", "effort": "high", "output_format": "text", "no_session_persistence": true, "print": true}},
-      "verifier": {"label": "codex", "agent": "codex", "model": "gpt-5.6-sol", "harness": "claude-code", "auth": "api-gateway", "reasoning": "high", "fresh_session": true, "launch": {"api_only": true, "read_only": true, "bare": true, "permission_mode": "plan", "effort": "high", "output_format": "text", "no_session_persistence": true, "print": true}},
-      "fail_closed": ["missing reviewer lane", "failed reviewer lane", "unparseable reviewer output", "missing verifier", "failed verifier", "unparseable verifier output", "incomplete prior-finding revalidation", "failed deterministic policy validation"],
-      "admit_sonnet_when": "canonical_validated_blocker_count == 0",
-      "non_blocking_severities_do_not_close_gate": ["suggestion", "nitpick"]
+    "name": "glm-flash-blocker-gate-sol-final-v2",
+    "version": 2,
+    "fingerprint": "22877dfb48e564e821abd8c72e8a33376cabf3a5a9591ca07804a62aebcf1e4d",
+    "description": "Every exact head runs Phase-1 glm-5.3-flash reviewers for general plus every selected specialist and a fresh distinct gpt-5.6-sol gate verifier. A zero-blocker gate admits Phase-2 gpt-5.6-sol reviewers and a fresh distinct final verifier. Missing, failed, stale-head, wrong-model, reused, or unparseable evidence fails closed. Persisted codex/sonnet keys remain compatibility aliases only.",
+    "roles": [
+      "general",
+      "selected-specialists"
+    ],
+    "phase2_enabled": true,
+    "orchestrator": {
+      "harness": "python",
+      "model": null,
+      "auth": null,
+      "role": "deterministic-orchestration-only",
+      "is_reviewer": false,
+      "is_verifier": false,
+      "is_finding_source": false,
+      "recorded_separately_from_reviewer_evidence": true
     },
-    "sonnet_phase": {
-      "reviewer": {"label": "sonnet5", "agent": "claude", "model": "claude-opus-5", "harness": "claude-code", "auth": "api-gateway", "effort": "high", "roles": ["general", "selected-specialists"], "launch": {"api_only": true, "read_only": true, "bare": true, "permission_mode": "plan", "effort": "high", "output_format": "text", "no_session_persistence": true, "print": true}},
+    "phase1": {
+      "compatibility_state_key": "codex",
+      "reviewer": {
+        "label": "phase1-glm-flash",
+        "agent": "phase1-reviewer",
+        "model": "glm-5.3-flash",
+        "harness": "claude-code",
+        "auth": "api-gateway",
+        "reasoning": "high",
+        "roles": [
+          "general",
+          "selected-specialists"
+        ],
+        "launch": {
+          "api_only": true,
+          "read_only": true,
+          "bare": true,
+          "permission_mode": "plan",
+          "effort": "high",
+          "output_format": "text",
+          "no_session_persistence": true,
+          "print": true
+        }
+      },
+      "verifier": {
+        "label": "phase1-sol-verifier",
+        "agent": "sol-verifier",
+        "model": "gpt-5.6-sol",
+        "harness": "claude-code",
+        "auth": "api-gateway",
+        "reasoning": "high",
+        "fresh_session": true,
+        "distinct_attempt_id": true,
+        "launch": {
+          "api_only": true,
+          "read_only": true,
+          "bare": true,
+          "permission_mode": "plan",
+          "effort": "high",
+          "output_format": "text",
+          "no_session_persistence": true,
+          "print": true
+        }
+      },
+      "fail_closed": [
+        "missing reviewer lane",
+        "failed reviewer lane",
+        "unparseable reviewer output",
+        "missing verifier",
+        "failed verifier",
+        "unparseable verifier output",
+        "incomplete prior-finding revalidation",
+        "failed deterministic policy validation"
+      ],
+      "admit_phase2_when": "canonical_validated_blocker_count == 0",
+      "non_blocking_severities_do_not_close_gate": [
+        "suggestion",
+        "nitpick"
+      ],
+      "technical_failure_route": "fail_closed; no alternate-model reviewer substitution"
+    },
+    "phase2": {
+      "compatibility_state_key": "sonnet",
+      "reviewer": {
+        "label": "phase2-sol",
+        "agent": "phase2-reviewer",
+        "model": "gpt-5.6-sol",
+        "harness": "claude-code",
+        "auth": "api-gateway",
+        "reasoning": "high",
+        "roles": [
+          "general",
+          "selected-specialists"
+        ],
+        "launch": {
+          "api_only": true,
+          "read_only": true,
+          "bare": true,
+          "permission_mode": "plan",
+          "effort": "high",
+          "output_format": "text",
+          "no_session_persistence": true,
+          "print": true
+        }
+      },
       "first_admission_coverage": "merge_base..current_head",
-      "later_round_coverage": "last_sonnet_reviewed_sha..current_head",
+      "later_round_coverage": "last_phase2_reviewed_sha..current_head (persisted as last_sonnet_reviewed_sha compatibility alias)",
       "cumulative_reconciliation": true,
       "last_reviewed_sha_independent": true,
       "all_reviewer_lanes_failed": "fail_closed_no_final_coverage",
       "verifier": {
-        "primary": {"label": "sonnet5", "agent": "claude", "model": "claude-opus-5", "harness": "claude-code", "auth": "api-gateway", "fresh_session": true, "launch": {"api_only": true, "read_only": true, "bare": true, "permission_mode": "plan", "effort": "high", "output_format": "text", "no_session_persistence": true, "print": true}},
-        "fallback": {"label": "codex", "agent": "codex", "model": "gpt-5.6-sol", "harness": "claude-code", "auth": "api-gateway", "reasoning": "high", "fresh_session": true, "launch": {"api_only": true, "read_only": true, "bare": true, "permission_mode": "plan", "effort": "high", "output_format": "text", "no_session_persistence": true, "print": true}},
-        "fallback_when": "Opus reviewer evidence exists but the primary Opus verifier fails or is unparseable",
-        "fallback_provenance_required": true
+        "label": "final-combined-sol-verifier",
+        "agent": "sol-verifier",
+        "model": "gpt-5.6-sol",
+        "harness": "claude-code",
+        "auth": "api-gateway",
+        "reasoning": "high",
+        "fresh_session": true,
+        "distinct_from_all_phase_attempts": true,
+        "bounded_fresh_attempts": 2,
+        "launch": {
+          "api_only": true,
+          "read_only": true,
+          "bare": true,
+          "permission_mode": "plan",
+          "effort": "high",
+          "output_format": "text",
+          "no_session_persistence": true,
+          "print": true
+        }
       }
     },
     "publication": {
-      "preliminary": {"phase": "preliminary", "title": "Preliminary review — Codex only", "event": "REQUEST_CHANGES", "sonnet": "Opus not run (deferred by blocker gate; field name retained for compatibility)"},
-      "final": {"phase": "final", "title": "Final validation — Codex + Opus"},
+      "preliminary": {
+        "phase": "preliminary",
+        "title": "Preliminary review — GLM Flash blocker gate",
+        "event": "REQUEST_CHANGES",
+        "phase2": "Sol reviewer pass not run (deferred by blocker gate)"
+      },
+      "final": {
+        "phase": "final",
+        "title": "Final validation — GLM Flash + Sol"
+      },
       "compatibility_marker": "<!-- thepastaclaw-review v1 -->",
       "phase_marker": "<!-- thepastaclaw-review-phase v1 phase={preliminary|final} sha={head_sha} -->",
       "same_sha_dedupe_is_phase_aware": true
     },
-    "same_sha_human_reply": "may_trigger_fresh_codex_revalidation_then_opus_admission",
+    "same_sha_human_reply": "may_trigger_fresh_phase1_revalidation_then_phase2_admission",
     "manual_thread_resolution": "never_clears_gate",
-    "new_head": "restart_at_codex_precheck",
-    "opus": {"automatic_normal_path": true, "manual_or_experiment_only": false},
-    "provenance_rule": "Persist exact head, phase, decision, canonical blocker count, reviewer and verifier attempt IDs/logical agents/exact backend models/harnesses/auth/roles/PIDs/exit statuses/artifacts/status/parseability, prior-finding revalidation, deterministic policy result, Opus coverage range, Opus last-reviewed SHA through the persisted Sonnet-named compatibility fields, publication IDs, and fallback reason after every checkpoint. Logical agent compatibility identity and Claude Code execution identity must remain separate."
+    "new_head": "restart_at_phase1",
+    "checkpoint_migration": "same-head policy identity or fingerprint mismatch restarts Phase 1; mismatched evidence cannot resume or satisfy policy v2",
+    "compatibility_aliases": {
+      "codex": "Phase-1 state/artifact key only",
+      "sonnet": "Phase-2 state/artifact key only"
+    },
+    "provenance_rule": "Persist exact policy identity/fingerprint, head, phase, decision, canonical blocker count, reviewer/verifier attempt IDs, logical agents, exact backend models, harness/auth/roles/read-only launch contract, PIDs, exit statuses, artifacts, status/parseability, prior-finding revalidation, deterministic policy result, coverage, publication IDs, and every verifier attempt."
   },
   "specialists": [
     {
@@ -191,7 +309,7 @@
         "dashpay/dash"
       ],
       "always_run": true,
-      "description": "Dash Core commit-history hygiene review (no code correctness). Dashpay/dash merges PR commits into develop without squashing, so the ordered stack lands in permanent history. Flags fixup/wip/no-op commits, obviously separate commits that should be squashed, misleading commit messages, mixed unrelated changes in a single commit visible from per-commit stats, and merge/rebase noise \u2014 while leaving legitimate multi-commit stacks (refactor+feature+tests, backport/cherry-pick series, justified mechanical follow-ups) alone."
+      "description": "Dash Core commit-history hygiene review (no code correctness). Dashpay/dash merges PR commits into develop without squashing, so the ordered stack lands in permanent history. Flags fixup/wip/no-op commits, obviously separate commits that should be squashed, misleading commit messages, mixed unrelated changes in a single commit visible from per-commit stats, and merge/rebase noise — while leaving legitimate multi-commit stacks (refactor+feature+tests, backport/cherry-pick series, justified mechanical follow-ups) alone."
     }
   ]
 }

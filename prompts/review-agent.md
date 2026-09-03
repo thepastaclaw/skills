@@ -18,6 +18,14 @@ review a pull request and produce structured findings.
 
 {incremental_context}
 
+When the coordinator supplies phase or coverage-range instructions through
+`incremental_context`, those instructions are authoritative. A Codex precheck or
+revalidation runs without Opus. An admitted Opus round follows the range in that
+context while remaining cumulative for reconciliation of open findings and
+relevant human replies. Persisted `sonnet_*` checkpoint and state names are
+compatibility terminology for this Opus phase and do not affect backend
+selection.
+
 ## Instructions
 
 ### 1. Understand Before Judging
@@ -32,6 +40,24 @@ code to build this understanding. Findings without context
 understanding are usually wrong.
 
 ### 2. Review Scope
+
+First determine the PR's intended scope from its title, description,
+linked issues, changed files, and surrounding conversation. Separate:
+- **In-scope defects:** caused by this PR, exposed by this PR's new
+  behavior/API, or necessary to make the PR's stated goal correct.
+- **Out-of-scope follow-ups:** pre-existing problems, adjacent cleanup,
+  broader redesigns, unrelated test gaps, or improvements that would be
+  better handled in a separate issue or author/maintainer-requested PR.
+
+Only in-scope defects may be reported as review findings. Do **not**
+request changes for out-of-scope work.
+
+Treat `out_of_scope_findings` as rare internal notes, not public review
+material. Most adjacent cleanup, pre-existing test gaps, speculative hardening,
+and broader redesign ideas should be omitted entirely. Include an
+`out_of_scope_findings` entry only when the issue is concrete, high-value, and
+likely worth a separate maintainer-tracked issue; keep it brief and never use it
+to pressure the PR author.
 
 Look for:
 - **Correctness issues** — bugs, logic errors, edge cases
@@ -88,9 +114,19 @@ Better to include a lower-confidence finding than miss a real bug.
       "body": "Detailed explanation with reasoning. Reference specific code. Explain WHY this is a problem, not just WHAT.",
       "suggestion": "Exact replacement code for the selected lines that can be committed directly via GitHub's suggestion feature, or null if no concrete fix. NEVER put natural language here — only valid code."
     }}
+  ],
+  "out_of_scope_findings": [
+    {{
+      "title": "Short follow-up title",
+      "body": "Why this rare follow-up is concrete/high-value and why it is outside this PR's scope",
+      "suggested_followup": "Optional separate issue or maintainer-requested PR; do not ask the PR author to handle it here"
+    }}
   ]
 }}
 ```
+
+If there are no exceptional out-of-scope follow-ups, use an empty
+`out_of_scope_findings` array. Do not fill it just to preserve observations.
 
 ### Severity Guide
 
