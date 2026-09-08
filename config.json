@@ -93,15 +93,50 @@
     "debounce_minutes": 30
   },
   "review_model_policy": {
-    "name": "glm-flash-blocker-gate-sol-final-v2",
-    "version": 2,
-    "fingerprint": "22877dfb48e564e821abd8c72e8a33376cabf3a5a9591ca07804a62aebcf1e4d",
-    "description": "Every exact head runs Phase-1 glm-5.3-flash reviewers for general plus every selected specialist and a fresh distinct gpt-5.6-sol gate verifier. A zero-blocker gate admits Phase-2 gpt-5.6-sol reviewers and a fresh distinct final verifier. Missing, failed, stale-head, wrong-model, reused, or unparseable evidence fails closed. Persisted codex/sonnet keys remain compatibility aliases only.",
+    "name": "glm-tiered-astra-final-v3",
+    "version": 3,
+    "fingerprint": "8a09b0d9bbc9d27e8c040644b08827aca9089ce6f9204e9f3fc8419642b9a476",
+    "description": "Every exact head is triaged by gpt-6-astra (low effort) into trivial/low/normal/critical; the tier sets the reviewer --effort per phase. Phase-1 glm-5.3-flash reviewers (general plus every selected specialist) run at the tier's phase1 effort and a fresh distinct gpt-5.6-sol gate verifier validates them. A zero-blocker gate admits Phase-2 gpt-6-astra reviewers at the tier's phase2 effort and a fresh distinct gpt-6-astra final verifier (fixed high); a trivial tier with zero blockers publishes the final review from Phase 1 alone and discloses the skip. Blockers always take precedence over tier. Missing, failed, stale-head, wrong-model, reused, or unparseable evidence fails closed. Persisted codex/sonnet keys remain compatibility aliases only.",
     "roles": [
       "general",
       "selected-specialists"
     ],
     "phase2_enabled": true,
+    "triage": {
+      "label": "complexity-triage",
+      "agent": "triage",
+      "model": "gpt-6-astra",
+      "harness": "claude-code",
+      "auth": "api-gateway",
+      "reasoning": "low",
+      "fallback_tier": "normal",
+      "is_reviewer": false,
+      "is_verifier": false,
+      "is_finding_source": false,
+      "tiers": {
+        "trivial": {
+          "phase1": "high",
+          "phase2": null,
+          "meaning": "typo/docs/rename/format/config-only, no behaviour change; Phase 2 skipped"
+        },
+        "low": {
+          "phase1": "high",
+          "phase2": "medium",
+          "meaning": "small, straightforward, well contained"
+        },
+        "normal": {
+          "phase1": "max",
+          "phase2": "high",
+          "meaning": "ordinary, reasonably contained change"
+        },
+        "critical": {
+          "phase1": "max",
+          "phase2": "xhigh",
+          "meaning": "large/complex, or consensus/funds/crypto/security/storage where a bug is critical; never above xhigh"
+        }
+      },
+      "rule": "effort per phase = tiers[tier]; verifiers keep their fixed reasoning; blockers found in Phase 1 always publish preliminary regardless of tier"
+    },
     "orchestrator": {
       "harness": "python",
       "model": null,
@@ -120,7 +155,7 @@
         "model": "glm-5.3-flash",
         "harness": "claude-code",
         "auth": "api-gateway",
-        "reasoning": "high",
+        "reasoning": "max",
         "roles": [
           "general",
           "selected-specialists"
@@ -130,11 +165,12 @@
           "read_only": true,
           "bare": true,
           "permission_mode": "plan",
-          "effort": "high",
+          "effort": "max",
           "output_format": "text",
           "no_session_persistence": true,
           "print": true
-        }
+        },
+        "effort_note": "default; the triage tier overrides --effort per run and the value used is persisted per lane"
       },
       "verifier": {
         "label": "phase1-sol-verifier",
@@ -176,9 +212,9 @@
     "phase2": {
       "compatibility_state_key": "sonnet",
       "reviewer": {
-        "label": "phase2-sol",
+        "label": "phase2-astra",
         "agent": "phase2-reviewer",
-        "model": "gpt-5.6-sol",
+        "model": "gpt-6-astra",
         "harness": "claude-code",
         "auth": "api-gateway",
         "reasoning": "high",
@@ -195,7 +231,8 @@
           "output_format": "text",
           "no_session_persistence": true,
           "print": true
-        }
+        },
+        "effort_note": "default; the triage tier overrides --effort per run and the value used is persisted per lane"
       },
       "first_admission_coverage": "merge_base..current_head",
       "later_round_coverage": "last_phase2_reviewed_sha..current_head (persisted as last_sonnet_reviewed_sha compatibility alias)",
@@ -203,9 +240,9 @@
       "last_reviewed_sha_independent": true,
       "all_reviewer_lanes_failed": "fail_closed_no_final_coverage",
       "verifier": {
-        "label": "final-combined-sol-verifier",
-        "agent": "sol-verifier",
-        "model": "gpt-5.6-sol",
+        "label": "final-combined-astra-verifier",
+        "agent": "astra-verifier",
+        "model": "gpt-6-astra",
         "harness": "claude-code",
         "auth": "api-gateway",
         "reasoning": "high",
@@ -227,27 +264,33 @@
     "publication": {
       "preliminary": {
         "phase": "preliminary",
-        "title": "Preliminary review — GLM Flash blocker gate",
+        "title": "Preliminary review — Phase 1 blocker gate",
         "event": "REQUEST_CHANGES",
-        "phase2": "Sol reviewer pass not run (deferred by blocker gate)"
+        "phase2": "Phase 2 (gpt-6-astra) not run (deferred by blocker gate)"
       },
       "final": {
         "phase": "final",
-        "title": "Final validation — GLM Flash + Sol"
+        "title": "Final validation — Phase 1 + Phase 2"
       },
       "compatibility_marker": "<!-- thepastaclaw-review v1 -->",
-      "phase_marker": "<!-- thepastaclaw-review-phase v1 phase={preliminary|final} sha={head_sha} -->",
-      "same_sha_dedupe_is_phase_aware": true
+      "phase_marker": "<!-- thepastaclaw-review-phase v1 phase={preliminary|final} sha={head_sha} policy={fingerprint[:16]} -->",
+      "same_sha_dedupe_is_phase_aware": true,
+      "final_phase1_only": {
+        "phase": "final",
+        "title": "Final review — Phase 1 only ({tier} change)",
+        "phase2": "not run (triage rated this change trivial)",
+        "event": "COMMENT (never APPROVE: Phase 2 did not run)"
+      }
     },
     "same_sha_human_reply": "may_trigger_fresh_phase1_revalidation_then_phase2_admission",
     "manual_thread_resolution": "never_clears_gate",
     "new_head": "restart_at_phase1",
-    "checkpoint_migration": "same-head policy identity or fingerprint mismatch restarts Phase 1; mismatched evidence cannot resume or satisfy policy v2",
+    "checkpoint_migration": "same-head policy identity or fingerprint mismatch restarts Phase 1; mismatched evidence cannot resume or satisfy policy v3",
     "compatibility_aliases": {
       "codex": "Phase-1 state/artifact key only",
       "sonnet": "Phase-2 state/artifact key only"
     },
-    "provenance_rule": "Persist exact policy identity/fingerprint, head, phase, decision, canonical blocker count, reviewer/verifier attempt IDs, logical agents, exact backend models, harness/auth/roles/read-only launch contract, PIDs, exit statuses, artifacts, status/parseability, prior-finding revalidation, deterministic policy result, coverage, publication IDs, and every verifier attempt."
+    "provenance_rule": "Persist exact policy identity/fingerprint, head, phase, decision, canonical blocker count, reviewer/verifier attempt IDs, logical agents, exact backend models, per-lane --effort and the triage tier/model/reasoning, harness/auth/roles/read-only launch contract, PIDs, exit statuses, artifacts, status/parseability, prior-finding revalidation, deterministic policy result, coverage, publication IDs, and every verifier attempt."
   },
   "specialists": [
     {
