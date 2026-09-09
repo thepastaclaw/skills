@@ -47,6 +47,12 @@
     },
     {
       "owner": "dashpay",
+      "name": "quorum-list-server",
+      "skill_path": "skills/quorum-list-server/",
+      "enabled": true
+    },
+    {
+      "owner": "dashpay",
       "name": "rust-dashcore",
       "skill_path": "skills/rust-dashcore/",
       "enabled": false,
@@ -302,7 +308,8 @@
         "dashpay/dash-platform-website",
         "dashpay/dashcore-lib",
         "dashpay/dashwallet-ios",
-        "thephez/docs-platform"
+        "thephez/docs-platform",
+        "dashpay/quorum-list-server"
       ],
       "description": "Deep security analysis: cryptographic implementations, consensus safety, proof system soundness, race conditions in concurrent code, web/DOM injection, remote dependency boundaries, trust boundary violations, unsafe operations, timing attacks"
     },
@@ -313,7 +320,8 @@
         "dashpay/platform",
         "dashpay/grovedb",
         "dashpay/dash-evo-tool",
-        "dashpay/rust-dashcore"
+        "dashpay/rust-dashcore",
+        "dashpay/quorum-list-server"
       ],
       "description": "Rust quality review: error handling discipline (no unwraps in production), architectural patterns, idiomatic Rust usage, proper lifetimes/generics, test structure, performance patterns (unnecessary clones, allocation in hot paths)"
     },
