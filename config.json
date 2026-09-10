@@ -99,10 +99,10 @@
     "debounce_minutes": 30
   },
   "review_model_policy": {
-    "name": "quota-ladder-tiered-astra-final-v5",
-    "version": 5,
-    "fingerprint": "d259469464211850431f9203d58cc9f4454f397977d2100a9f2bab5187e6c905",
-    "description": "Every exact head is triaged by gpt-6-astra (low effort) into trivial/low/normal/critical (normal is the default; critical requires both a large/intricate diff and a critical surface); the tier sets the reviewer --effort per phase. Phase-1 reviewers (general plus every selected specialist) run on a quota ladder: gemini-3.8-flash-high while the Antigravity Gemini quota lasts, else glm-5.3-flash while the Z.AI plan lasts, else muse-spark-1.3-contributor (pay per token); all at the tier's phase1 effort, validated by a fresh distinct gpt-5.6-sol gate verifier. A zero-blocker gate admits Phase-2 gpt-6-astra reviewers at the tier's phase2 effort and a fresh distinct gpt-6-astra final verifier (fixed high); a trivial tier with zero blockers publishes the final review from Phase 1 alone and discloses the skip. Blockers always take precedence over tier. Missing, failed, stale-head, wrong-model, reused, or unparseable evidence fails closed. Persisted codex/sonnet keys remain compatibility aliases only.",
+    "name": "quota-ladder-astra-gate-v6",
+    "version": 6,
+    "fingerprint": "0f51c5bb94e1213431aa32c580478676241ef926fb4cc91acfe01504ce737fa9",
+    "description": "Every exact head is triaged by gpt-6-astra (low effort) into trivial/low/normal/critical (normal is the default; critical requires both a large/intricate diff and a critical surface); the tier sets the reviewer --effort per phase. Phase-1 reviewers (general plus every selected specialist) run on a quota ladder: gemini-3.8-flash-high while the Antigravity Gemini quota lasts, else glm-5.3-flash while the Z.AI plan lasts, else muse-spark-1.3-contributor (pay per token); all at the tier's phase1 effort, validated by a fresh distinct gpt-6-astra gate verifier (effort medium). A zero-blocker gate admits Phase-2 gpt-6-astra reviewers at the tier's phase2 effort and a fresh distinct gpt-6-astra final verifier (fixed high); a trivial tier with zero blockers publishes the final review from Phase 1 alone and discloses the skip. Blockers always take precedence over tier. Missing, failed, stale-head, wrong-model, reused, or unparseable evidence fails closed. Persisted codex/sonnet keys remain compatibility aliases only.",
     "roles": [
       "general",
       "selected-specialists"
@@ -179,12 +179,12 @@
         "effort_note": "default; the triage tier overrides --effort per run and the value used is persisted per lane. `candidates` below is the ordered Phase-1 ladder; this block is the shared default for agent/launch."
       },
       "verifier": {
-        "label": "phase1-sol-verifier",
-        "agent": "sol-verifier",
-        "model": "gpt-5.6-sol",
+        "label": "phase1-astra-verifier",
+        "agent": "astra-gate-verifier",
+        "model": "gpt-6-astra",
         "harness": "claude-code",
         "auth": "api-gateway",
-        "reasoning": "high",
+        "reasoning": "medium",
         "fresh_session": true,
         "distinct_attempt_id": true,
         "launch": {
@@ -192,7 +192,7 @@
           "read_only": true,
           "bare": true,
           "permission_mode": "plan",
-          "effort": "high",
+          "effort": "medium",
           "output_format": "text",
           "no_session_persistence": true,
           "print": true
