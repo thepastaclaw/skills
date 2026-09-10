@@ -99,10 +99,10 @@
     "debounce_minutes": 30
   },
   "review_model_policy": {
-    "name": "glm-tiered-astra-final-v3",
-    "version": 3,
-    "fingerprint": "8a09b0d9bbc9d27e8c040644b08827aca9089ce6f9204e9f3fc8419642b9a476",
-    "description": "Every exact head is triaged by gpt-6-astra (low effort) into trivial/low/normal/critical; the tier sets the reviewer --effort per phase. Phase-1 glm-5.3-flash reviewers (general plus every selected specialist) run at the tier's phase1 effort and a fresh distinct gpt-5.6-sol gate verifier validates them. A zero-blocker gate admits Phase-2 gpt-6-astra reviewers at the tier's phase2 effort and a fresh distinct gpt-6-astra final verifier (fixed high); a trivial tier with zero blockers publishes the final review from Phase 1 alone and discloses the skip. Blockers always take precedence over tier. Missing, failed, stale-head, wrong-model, reused, or unparseable evidence fails closed. Persisted codex/sonnet keys remain compatibility aliases only.",
+    "name": "quota-ladder-tiered-astra-final-v4",
+    "version": 4,
+    "fingerprint": "d8e7484af6cab2e7916a8a0c8a686efb981d4fa7af3e7325888eebe5e4a8ee13",
+    "description": "Every exact head is triaged by gpt-6-astra (low effort) into trivial/low/normal/critical; the tier sets the reviewer --effort per phase. Phase-1 reviewers (general plus every selected specialist) run on a quota ladder: gemini-3.8-flash-high while the Antigravity Gemini quota lasts, else glm-5.3-flash while the Z.AI plan lasts, else muse-spark-1.3-contributor (pay per token); all at the tier's phase1 effort, validated by a fresh distinct gpt-5.6-sol gate verifier. A zero-blocker gate admits Phase-2 gpt-6-astra reviewers at the tier's phase2 effort and a fresh distinct gpt-6-astra final verifier (fixed high); a trivial tier with zero blockers publishes the final review from Phase 1 alone and discloses the skip. Blockers always take precedence over tier. Missing, failed, stale-head, wrong-model, reused, or unparseable evidence fails closed. Persisted codex/sonnet keys remain compatibility aliases only.",
     "roles": [
       "general",
       "selected-specialists"
@@ -156,7 +156,7 @@
     "phase1": {
       "compatibility_state_key": "codex",
       "reviewer": {
-        "label": "phase1-glm-flash",
+        "label": "phase1-quota-ladder",
         "agent": "phase1-reviewer",
         "model": "glm-5.3-flash",
         "harness": "claude-code",
@@ -176,7 +176,7 @@
           "no_session_persistence": true,
           "print": true
         },
-        "effort_note": "default; the triage tier overrides --effort per run and the value used is persisted per lane"
+        "effort_note": "default; the triage tier overrides --effort per run and the value used is persisted per lane. `candidates` below is the ordered Phase-1 ladder; this block is the shared default for agent/launch."
       },
       "verifier": {
         "label": "phase1-sol-verifier",
@@ -213,7 +213,36 @@
         "suggestion",
         "nitpick"
       ],
-      "technical_failure_route": "fail_closed; no alternate-model reviewer substitution"
+      "technical_failure_route": "fail_closed; no alternate-model reviewer substitution",
+      "candidates": [
+        {
+          "label": "phase1-gemini-flash",
+          "model": "gemini-3.8-flash-high",
+          "reasoning": "high",
+          "quota": {
+            "provider": "antigravity",
+            "group": "Gemini Models"
+          },
+          "note": "included Antigravity subscription; gated on the Gemini group's 5h and weekly buckets"
+        },
+        {
+          "label": "phase1-glm-flash",
+          "model": "glm-5.3-flash",
+          "reasoning": "max",
+          "quota": {
+            "provider": "zai"
+          },
+          "note": "Z.AI coding plan; gated on its 5h and weekly credit windows"
+        },
+        {
+          "label": "phase1-muse-contrib",
+          "model": "muse-spark-1.3-contributor",
+          "reasoning": "xhigh",
+          "note": "pay-per-token last rung (Meta contributor tier, ~$0.10/$0.20 per M; no `max` effort on this tier); never gated"
+        }
+      ],
+      "quota_reserve": 0.15,
+      "ladder_rule": "Phase 1 runs on the first candidate whose subscription has at least quota_reserve of every window left; a failed lookup skips the rung; the last rung is never gated. The chosen model is disclosed in the provenance block and persisted per lane."
     },
     "phase2": {
       "compatibility_state_key": "sonnet",
