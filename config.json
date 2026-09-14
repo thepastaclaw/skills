@@ -329,6 +329,26 @@
   },
   "specialists": [
     {
+      "id": "architecture-layering",
+      "prompt": "prompts/architecture-layering.md",
+      "repos": [
+        "dashpay/platform",
+        "dashpay/grovedb"
+      ],
+      "always_run": true,
+      "description": "Maintainer architecture and fix placement: verifies dependency direction and identifies the crate or layer that owns a behavior, including Platform's DPP/Drive/Drive-ABCI/SDK/FFI stack and GroveDB proof and storage boundaries"
+    },
+    {
+      "id": "platform-versioning",
+      "prompt": "prompts/platform-versioning.md",
+      "repos": [
+        "dashpay/platform",
+        "dashpay/grovedb"
+      ],
+      "description": "Platform and GroveDB compatibility review: checks protocol and feature version dispatch, immutable historical implementations, activation gates, serialization and proof compatibility, persisted state, enum/error-code append-only rules, and crate semver metadata",
+      "trigger_hint": "breaking|version|versioned|protocol|feature[_ -]?version|platform[-_ ]version|grove[-_ ]version|migration|serialization|deserialize|proof|enum|wire format|compatib"
+    },
+    {
       "id": "security-auditor",
       "prompt": "prompts/security-auditor.md",
       "repos": [
