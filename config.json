@@ -15,6 +15,12 @@
     },
     {
       "owner": "dashpay",
+      "name": "dash-wallet",
+      "skill_path": "skills/dash-wallet/",
+      "enabled": true
+    },
+    {
+      "owner": "dashpay",
       "name": "platform",
       "skill_path": "skills/platform/",
       "enabled": true
@@ -357,6 +363,7 @@
         "dashpay/dash-platform-website",
         "dashpay/dashcore-lib",
         "dashpay/dashwallet-ios",
+        "dashpay/dash-wallet",
         "thephez/docs-platform",
         "dashpay/quorum-list-server"
       ],
