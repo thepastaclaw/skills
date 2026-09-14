@@ -36,8 +36,7 @@
       "owner": "dashpay",
       "name": "grovedb",
       "skill_path": "skills/grovedb/",
-      "enabled": false,
-      "disabled_reason": "Repo ban: QuantumExplorer (2026-03-05) asked us to stop contributing to grovedb"
+      "enabled": true
     },
     {
       "owner": "dashpay",
