@@ -104,10 +104,10 @@
     "debounce_minutes": 30
   },
   "review_model_policy": {
-    "name": "quota-ladder-astra-gate-v9-degraded-backlog",
-    "version": 9,
-    "fingerprint": "c34b7d3c18797b0e5a3bc2e60085edeabeab0da460c66544eac64cf4a7cb3a02",
-    "description": "Every exact head is triaged by gpt-6-astra (low effort) into trivial/low/normal/critical (normal is the default; critical requires both a large/intricate diff and a critical surface); the tier sets the reviewer --effort per phase. Phase-1 reviewers (general plus every selected specialist) run on a quota ladder: gemini-3.8-flash-high while the Antigravity Gemini quota lasts, else glm-5.3-flash while the Z.AI plan lasts and the tier asks at most high effort (at max it is far too slow), else muse-spark-1.3-contributor (pay per token); all at the tier's phase1 effort, validated by a fresh distinct gpt-6-astra gate verifier (effort medium). A zero-blocker gate admits Phase-2 gpt-6-astra reviewers at the tier's phase2 effort and a fresh distinct gpt-6-astra final verifier (fixed high); a trivial tier with zero blockers publishes the final review from Phase 1 alone and discloses the skip. Blockers always take precedence over tier. Missing, failed, stale-head, wrong-model, reused, or unparseable evidence fails closed. Degraded mode: while the OpenAI/Codex pool answers with quota errors (sentinel gpt-6-astra, probed before every run and every 2 min by the daemon; a lane dying on a quota error flips the run on the spot), every gpt-* lane runs on muse-spark-1.3-contributor (triage, selector, repair, Phase-1 gate verifier, Phase-2 reviewers, final verifier, conversation), Phase 1 is capped at high effort so the Gemini/GLM rungs stay eligible, both phases run unless the queue is deep, where backlog mode still applies and the run goes straight to Phase 2 on the stand-in, the review is titled/bannered DEGRADED and never approves. Persisted codex/sonnet keys remain compatibility aliases only.",
+    "name": "quota-ladder-sol61-v10-astra-compare",
+    "version": 10,
+    "fingerprint": "794a48c2e388293d5b0852670fe0591360d5ff8eed7a8f921bbf2824dbeaea03",
+    "description": "Every exact head is triaged by gpt-6.1-sol (low effort) into trivial/low/normal/critical (normal is the default; critical requires both a large/intricate diff and a critical surface); the tier sets the reviewer --effort per phase. Phase-1 reviewers (general plus every selected specialist) run on a quota ladder: gemini-3.8-flash-high while the Antigravity Gemini quota lasts, else glm-5.3-flash while the Z.AI plan lasts and the tier asks at most high effort (at max it is far too slow), else muse-spark-1.3-contributor (pay per token); all at the tier's phase1 effort, validated by a fresh distinct gpt-6.1-sol gate verifier (effort medium). A zero-blocker gate admits Phase-2 gpt-6.1-sol reviewers at the tier's phase2 effort and a fresh distinct gpt-6.1-sol final verifier (fixed high); a trivial tier with zero blockers publishes the final review from Phase 1 alone and discloses the skip. Blockers always take precedence over tier. Model comparison: on 25% of critical runs (stable hash of the head) every Phase-2 reviewer also runs on gpt-6-astra; the gpt-6.1-sol verifier weighs both sets blind and alone decides the verdict; a failed comparison lane is dropped, never the run. Missing, failed, stale-head, wrong-model, reused, or unparseable evidence fails closed. Degraded mode: while the OpenAI/Codex pool answers with quota errors (sentinel gpt-6.1-sol, probed before every run and every 2 min by the daemon; a lane dying on a quota error flips the run on the spot), every gpt-* lane runs on muse-spark-1.3-contributor (triage, selector, repair, Phase-1 gate verifier, Phase-2 reviewers, final verifier, conversation), no comparison runs, Phase 1 is capped at high effort so the Gemini/GLM rungs stay eligible, both phases run unless the queue is deep, where backlog mode still applies and the run goes straight to Phase 2 on the stand-in, the review is titled/bannered DEGRADED and never approves. Persisted codex/sonnet keys remain compatibility aliases only.",
     "roles": [
       "general",
       "selected-specialists"
@@ -116,7 +116,7 @@
     "triage": {
       "label": "complexity-triage",
       "agent": "triage",
-      "model": "gpt-6-astra",
+      "model": "gpt-6.1-sol",
       "harness": "claude-code",
       "auth": "api-gateway",
       "reasoning": "low",
@@ -184,9 +184,9 @@
         "effort_note": "default; the triage tier overrides --effort per run and the value used is persisted per lane. `candidates` below is the ordered Phase-1 ladder; this block is the shared default for agent/launch."
       },
       "verifier": {
-        "label": "phase1-astra-verifier",
-        "agent": "astra-gate-verifier",
-        "model": "gpt-6-astra",
+        "label": "phase1-sol-verifier",
+        "agent": "sol-gate-verifier",
+        "model": "gpt-6.1-sol",
         "harness": "claude-code",
         "auth": "api-gateway",
         "reasoning": "medium",
@@ -253,9 +253,9 @@
     "phase2": {
       "compatibility_state_key": "sonnet",
       "reviewer": {
-        "label": "phase2-astra",
+        "label": "phase2-sol",
         "agent": "phase2-reviewer",
-        "model": "gpt-6-astra",
+        "model": "gpt-6.1-sol",
         "harness": "claude-code",
         "auth": "api-gateway",
         "reasoning": "high",
@@ -281,9 +281,9 @@
       "last_reviewed_sha_independent": true,
       "all_reviewer_lanes_failed": "fail_closed_no_final_coverage",
       "verifier": {
-        "label": "final-combined-astra-verifier",
-        "agent": "astra-verifier",
-        "model": "gpt-6-astra",
+        "label": "final-combined-sol-verifier",
+        "agent": "sol-verifier",
+        "model": "gpt-6.1-sol",
         "harness": "claude-code",
         "auth": "api-gateway",
         "reasoning": "high",
@@ -307,7 +307,7 @@
         "phase": "preliminary",
         "title": "Preliminary review — Phase 1 blocker gate",
         "event": "REQUEST_CHANGES",
-        "phase2": "Phase 2 (gpt-6-astra) not run (deferred by blocker gate)"
+        "phase2": "Phase 2 (gpt-6.1-sol) not run (deferred by blocker gate)"
       },
       "final": {
         "phase": "final",
@@ -334,10 +334,15 @@
     "provenance_rule": "Persist exact policy identity/fingerprint, head, phase, decision, canonical blocker count, reviewer/verifier attempt IDs, logical agents, exact backend models, per-lane --effort and the triage tier/model/reasoning, harness/auth/roles/read-only launch contract, PIDs, exit statuses, artifacts, status/parseability, prior-finding revalidation, deterministic policy result, coverage, publication IDs, and every verifier attempt.",
     "degraded": {
       "label": "degraded",
-      "sentinel": "gpt-6-astra",
+      "sentinel": "gpt-6.1-sol",
       "phase1_effort_cap": "high",
       "backlog_skip_phase1": true,
       "substitutes": {
+        "gpt-6.1-sol": {
+          "model": "muse-spark-1.3-contributor",
+          "effort_cap": "xhigh",
+          "note": "Meta contributor tier has no `max`; xhigh is its top"
+        },
         "gpt-6-astra": {
           "model": "muse-spark-1.3-contributor",
           "effort_cap": "xhigh",
@@ -358,7 +363,16 @@
           "note": "JSON repair (low effort)"
         }
       },
-      "rule": "Active while the sentinel answers a quota error (429 / cooling down / usage limit) or an operator ran `reviewsys degraded on`. Phase 1 keeps its ladder (gemini-3.8-flash-high -> glm-5.3-flash -> muse) with the tier effort capped at `phase1_effort_cap`; every other lane whose model is listed in `substitutes` runs on its stand-in at min(lane effort, effort_cap). Both phases run, except when more heads than `backlog_skip_phase1_above` are queued: backlog mode still applies in degraded mode (`backlog_skip_phase1`), so a deep queue goes straight to Phase 2 on the stand-in rather than waiting on the slow Phase-1 rungs. APPROVE is downgraded to COMMENT; every publication carries the DEGRADED badge and the reason. Clears automatically when the sentinel answers again."
+      "rule": "Active while the sentinel answers a quota error (429 / cooling down / usage limit) or an operator ran `reviewsys degraded on`. Phase 1 keeps its ladder (gemini-3.8-flash-high -> glm-5.3-flash -> muse) with the tier effort capped at `phase1_effort_cap`; every other lane whose model is listed in `substitutes` runs on its stand-in at min(lane effort, effort_cap). Both phases run, except when more heads than `backlog_skip_phase1_above` are queued: backlog mode still applies in degraded mode (`backlog_skip_phase1`), so a deep queue goes straight to Phase 2 on the stand-in rather than waiting on the slow Phase-1 rungs. APPROVE is downgraded to COMMENT; every publication carries the DEGRADED badge and the reason. No model comparison runs while degraded. Clears automatically when the sentinel answers again."
+    },
+    "comparison": {
+      "label": "sol61-vs-astra",
+      "model": "gpt-6-astra",
+      "tiers": [
+        "critical"
+      ],
+      "fraction": 0.25,
+      "rule": "On a sampled run every Phase-2 reviewer lane (general and each specialist, fresh final pass included) also runs on `model` at the same effort; the verifier sees both sets without model names and alone decides the verdict. Never in degraded mode or on audits. Compare with `reviewsys compare`."
     }
   },
   "specialists": [
