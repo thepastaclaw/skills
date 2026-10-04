@@ -67,7 +67,7 @@ minimal follow-up.
 
 ### 3. Verify the proposed location
 
-Use the exact review range supplied in the incremental context and inspect unchanged callers and
+Review the whole range given above and inspect unchanged callers and
 implementations needed to prove the claim. Check Cargo manifests and feature
 edges, trait ownership, generated bindings, and existing tests. For a
 cross-crate recommendation, name the target crate and module (for example,

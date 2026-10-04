@@ -56,6 +56,12 @@ For each issue return one `status`:
 - `FIXED`: the code at head now addresses it. Check the code; a claim in a reply is not enough.
 - `OUTDATED`: the code it was about is gone or no longer does what the issue described, so the
   issue no longer applies.
+
+Both say the code changed. On a reply to the commit you reviewed nothing changed: a proposed
+change that would fix the issue or make it moot is answered FIXED and recorded as a pending
+fix (the issue keeps standing until the push that carries it is reviewed), and an issue that
+was wrong about this commit is WITHDRAWN.
+
 - `WITHDRAWN`: it was wrong or overstated, or a reply shows it does not apply. Conceding costs
   nothing; digging in costs the maintainers' trust.
 - `INTENTIONALLY_DEFERRED`: a maintainer (association OWNER, MEMBER or COLLABORATOR) made a

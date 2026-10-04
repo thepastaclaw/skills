@@ -59,6 +59,6 @@ the documented pattern. For every finding, cite the exact changed line,
 name the version table/dispatcher/gate that should change, and state the
 compatibility consequence. If no versioning is needed, say why in the summary.
 
-Inspect the full range supplied in the incremental context and read
+Inspect the whole range given above and read
 unchanged dispatchers, version constants, feature activation definitions,
 serialization derives, and tests needed to validate the claim.
