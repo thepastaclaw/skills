@@ -43,11 +43,21 @@ understanding are usually wrong.
 
 First determine the PR's intended scope from its title, description,
 linked issues, changed files, and surrounding conversation. Separate:
-- **In-scope defects:** caused by this PR, exposed by this PR's new
-  behavior/API, or necessary to make the PR's stated goal correct.
-- **Out-of-scope follow-ups:** pre-existing problems, adjacent cleanup,
-  broader redesigns, unrelated test gaps, or improvements that would be
-  better handled in a separate issue or author/maintainer-requested PR.
+- **In-scope issues:** introduced by this PR, or ones the PR is by its nature
+  responsible for: its goal depends on them, it adds code that works around,
+  duplicates or extends them, or it touches or moves the code where they
+  live. Code in the wrong layer and logic duplicated from its owner are
+  in-scope even when they work today.
+- **Out-of-scope follow-ups:** unrelated pre-existing problems the PR merely
+  sits next to, adjacent cleanup, broad redesigns the PR has no part in, or
+  improvements better handled in a separate issue or maintainer-requested PR.
+
+The PR's framing is a claim, not a decision: "not done here", "follow-up" or
+"known limitation" in the description does not make an in-scope issue
+out-of-scope. Report it, and say if it needs a tracking issue.
+
+For a backport, "responsible for" means matching upstream faithfully, not
+improving on it.
 
 Only in-scope defects may be reported as review findings. Do **not**
 request changes for out-of-scope work.
@@ -84,15 +94,52 @@ A finding without a concrete code reference is speculation. If you
 can't point to the specific lines and explain why they're wrong,
 don't include it.
 
-### 3. Fetch What You Need
+### 3. Required Checks
+
+Most missed issues are not subtle bugs in the diff; they are things outside
+it nobody looked at. Do each of these and keep notes for `considered_dismissed`:
+
+1. **Check the premise.** List the PR's claims: why the change is needed,
+   what the base or a dependency does or cannot do, what is already true
+   elsewhere ("X cannot report Y", "nothing resolves it", "already prevented
+   by Z", "upstream has no such check"). Verify each in code, git history,
+   or the sister repositories in the evidence. Do not endorse an approach
+   because the code implements it faithfully; ask whether the approach is
+   the right one. A wrong premise is an in-scope finding.
+2. **Sweep siblings and existing mechanisms.** For each rule, gate, check,
+   helper, parser, flag, constant table or error mapping the PR adds or
+   changes: grep for every other caller, implementation and route that
+   should apply the same thing, and for an existing mechanism that already
+   does it. Report a missed sibling or a duplicate of something that exists.
+3. **Enumerate states and sequences.** For code driven by an external
+   caller or event stream (a consensus engine, a network peer, a wallet or
+   app lifecycle, a scheduler), list the states and orderings that caller
+   can produce (retries, re-entry, rounds/re-proposals, restart, offline,
+   late or lost notifications, removal while in flight) and check each.
+4. **Check the base.** Use `base_drift` in the evidence: does a commit that
+   landed on the base since the branch point already do this, supersede it,
+   or conflict with it? Does the branch still merge cleanly?
+5. **Read the sister repositories** in the evidence when the change depends
+   on, works around, duplicates, or is driven by code there; search their
+   open issues and PRs too.
+6. **Put fixes in the owning layer.** When you suggest a fix, put it where
+   the behaviour belongs under the project's ownership rules. If the right
+   fix is in another Dash repository, say so instead of prescribing a local
+   patch.
+7. **Watch workaround growth.** On later rounds, if this PR keeps receiving
+   edge-case fixes to the same compensating mechanism, the next finding
+   should question where that mechanism lives, not add another edge case.
+
+### 4. Fetch What You Need
 
 You have the full repository checked out. Use whatever tools help:
 - `gh pr diff {pr_number}` for the full diff
 - `git diff` for specific comparisons
 - Read source files directly for context
 - Check test files to understand coverage
+- The sister repositories and base-drift data listed in the evidence
 
-### 4. Output Format
+### 5. Output Format
 
 Produce your findings as a single JSON object. Be precise about
 file paths and line numbers. Only include findings you're
@@ -121,17 +168,28 @@ Better to include a lower-confidence finding than miss a real bug.
       "body": "Why this rare follow-up is concrete/high-value and why it is outside this PR's scope",
       "suggested_followup": "Optional separate issue or maintainer-requested PR; do not ask the PR author to handle it here"
     }}
+  ],
+  "considered_dismissed": [
+    {{
+      "area": "file, mechanism or claim you examined",
+      "concern": "what you checked for",
+      "why_dismissed": "the evidence that it is fine"
+    }}
   ]
 }}
 ```
 
 If there are no exceptional out-of-scope follow-ups, use an empty
 `out_of_scope_findings` array. Do not fill it just to preserve observations.
+`considered_dismissed` lists the notable things from the required checks you
+examined and judged fine (a premise you verified, a sibling you confirmed is
+covered). Keep each entry to a sentence or two; at most 15.
 
 ### Severity Guide
 
 - **blocking**: Will cause a bug, security issue, data loss,
-  consensus failure, or crash. Must be fixed before merge.
+  consensus failure, or crash, or breaks a rule the project's review skill
+  lists as blocking. Must be fixed before merge.
 - **suggestion**: Improvement that would make the code better but
   isn't a defect. Test coverage gaps, performance improvements,
   better abstractions.
