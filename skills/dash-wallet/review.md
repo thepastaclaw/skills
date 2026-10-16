@@ -21,13 +21,14 @@ rotation and process death.
 Keep findings tied to behavior introduced by the PR. Do not flag intentional
 test fixtures or the documented testnet world-readable wallet behavior unless
 the change leaks it into production.
+
 ## State and Lifecycle Checklist
 
 Most wallet bugs that reach maintainers only show up when you list state
 sequences. For each persisted state and each event the PR touches:
 
 - List every state × transition the PR names, plus re-entry, retry, offline,
-  locked device / keychain unavailable, first launch, background launch,
+  locked device / Keystore unavailable, first launch, background launch,
   restore, wipe, and removal while an operation is in flight.
 - Trace nil / unknown / unreadable into every aggregate and decision: unknown
   must not become zero, absent, or "no wallet"; a read failure is not absence.

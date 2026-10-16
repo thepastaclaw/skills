@@ -466,7 +466,7 @@
         "dashpay/platform"
       ],
       "description": "TenderDash (Go) consensus and security review: BFT protocol correctness (propose/prevote/precommit, locking, +2/3 thresholds, double-sign / equivocation), validator set + LLMQ quorum signature verification (BLS threshold sigs, quorum hash binding, chain-id and domain separation), vote/commit/block/header validation, evidence handling, light client safety, ABCI app-vs-consensus trust boundary, RPC and P2P input validation, DoS / resource exhaustion (unbounded allocations, slow peers, mempool flooding), Go concurrency (data races, deadlocks, goroutine leaks), nondeterminism in consensus-critical paths. On dashpay/platform: select it for changes to rs-drive-abci ABCI handlers or the consensus path they drive (PrepareProposal/ProcessProposal, ExtendVote/VerifyVoteExtension, FinalizeBlock, vote-extension or withdrawal signing, quorum/validator-set rotation, state sync), where the application must handle every sequence TenderDash produces",
-      "trigger_hint": "consensus|vote|commit|validator|quorum|bls|abci|p2p|rpc|evidence|light client|chain-id|sign"
+      "trigger_hint": "consensus|vote[ _-]?extension|precommit|prevote|validator|quorum|\\bbls\\b|\\babci\\b|\\bp2p\\b|evidence|light client|chain-id|\\bsign(ing|ature|er)?s?\\b|\\brpc\\b|\\bcommit (round|sig)|extend_?vote|verify_?vote_?extension|(prepare|process)_?proposal|finalize_?block"
     },
     {
       "id": "dash-core-commit-history",

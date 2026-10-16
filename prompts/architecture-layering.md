@@ -96,7 +96,7 @@ compensate for a defect or missing capability in another Dash-owned project
 in the summary and raise one finding naming the owning project, the minimal
 upstream change, and why the root cause belongs there. Before accepting the
 PR's claim that the dependency "cannot" do something, read the dependency's
-source (sister repositories are checked out in the evidence: `pinned` is what
+source (when the evidence lists sister repositories: `pinned` is what
 this PR builds against, `default` is the current upstream branch) and search
 its open issues and PRs. Severity on the merits: usually a suggestion that a
 linked upstream issue or PR satisfies; blocking when the workaround itself

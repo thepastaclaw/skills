@@ -86,15 +86,17 @@ For EACH finding from both agents:
      - it adds code that works around, duplicates, or extends the issue
        (a local workaround for a dependency's defect, a second copy of a rule
        that exists elsewhere, new logic in a layer that must not own it); or
-     - it touches or moves the code where the issue lives.
+     - it moves the defective code, or changes the defective code itself in
+       a way that carries the defect forward or depends on it.
    - The test is not "does it show a regression": code placed in the wrong
      layer, or logic duplicated from its owner, works today and is still an
      issue this PR introduced. Judge architecture and ownership findings
      against the project's ownership rules (review skill, project
-     conventions), not against a demonstrated behavioural failure. You may
-     drop a `category: architecture` finding only by showing the placement is
-     allowed by those rules; "out of scope", "routine refactor" or "no
-     regression" are not reasons to drop one.
+     conventions), not against a demonstrated behavioural failure. Drop a
+     `category: architecture` finding when it is factually wrong, when the
+     project's rules allow the placement (cite them), or keep it at most as a
+     suggestion when no stated rule is violated. "Out of scope", "routine
+     refactor" and "no regression" are not reasons to drop one.
    - Do **not** request changes for unrelated pre-existing bugs the PR merely
      sits next to, unrelated cleanup, or broad redesigns the PR has no part in.
      Usually drop those entirely rather than preserving them as review output.
@@ -104,16 +106,20 @@ For EACH finding from both agents:
    - **The PR's own framing is a claim, not a decision.** "Not done here",
      "follow-up", "deferred by agreement", or "known limitation" in the PR
      description or the author's replies does not put an issue out of scope.
-     If the issue is otherwise in scope, keep it. When the author defers it,
-     the follow-up is acceptable only if it is reasonable (not something this
-     PR introduced or is responsible for) and tracked by a linked issue or PR;
-     otherwise keep the finding and say in its body that it needs a tracking
-     issue before it can be deferred.
+     If the issue is otherwise in scope, keep it. A maintainer (the author
+     counts) may defer it when the deferral is reasonable and tracked:
+     reasonable means it is not a defect this diff introduces or makes worse
+     (a bug, a regression, new logic in the wrong layer); an item the PR is
+     responsible for in the wider sense (a missed sibling, an upstream fix, a
+     relocation) may be deferred. Tracked means a linked issue or PR covers
+     it. A reasonable, tracked deferral becomes a non-blocking note citing the
+     link. A reasonable but untracked one: keep the finding and say in its
+     body that it needs a tracking issue before it can be deferred.
    - **Check the premise.** When a finding (or the PR) depends on a claim
      about a dependency, the base branch, or why the change is needed ("X
      cannot tell us", "nothing ever resolves it", "already prevented
      elsewhere", "upstream does not have it"), verify the claim in the source:
-     the sister repositories in the evidence, `git log` on the base. A finding
+     the sister repositories in the evidence when present, `git log` on the base. A finding
      that shows the PR's premise is wrong is in scope.
    - **Upstream workarounds.** When the PR mainly works around a defect or
      missing capability in another Dash-owned project (rust-dashcore,
@@ -124,7 +130,8 @@ For EACH finding from both agents:
      it puts logic in an FFI layer) or is wrong.
    - Reviewers may list `considered_dismissed` items (things they looked at
      and decided were fine). Read them; if you disagree with a dismissal after
-     checking the code, raise it as a finding yourself.
+     checking the code, raise it as a finding yourself, with the `source` of
+     the reviewer whose dismissal you overturned.
    - Use `out_of_scope_findings` only for exceptional, concrete follow-ups that
      maintainers should probably track separately. A severe pre-existing issue
      can be recorded there, but it must not affect `review_action` unless this
@@ -272,7 +279,8 @@ Rewrite all findings in a consistent voice:
 
 ### 6. Choose Review Action
 
-- **APPROVE** — no in-scope blocking issues or suggestions, clean PR
+- **APPROVE** — no in-scope blocking issues or suggestions, clean PR, and no
+  failed code check that plausibly relates to the change (see CI evidence)
 - **REQUEST_CHANGES** — at least one in-scope blocking issue found
 - **COMMENT** — in-scope suggestions/nitpicks but no blockers
 - **APPROVE** rather than COMMENT when there are no in-scope findings, even if
@@ -282,7 +290,8 @@ Out-of-scope findings never justify `REQUEST_CHANGES` or a public COMMENT-only
 review by themselves.
 
 **CI evidence.** Read the `ci` snapshot in the evidence (and `gh pr checks` for
-the current state). A failed required or code check on this head is evidence,
+the current state). A failed code check (build, test, lint; not PR-title,
+policy, coverage or review checks) on this head is evidence,
 not an automatic verdict, because CI flakes:
 - If the failure plausibly relates to the PR's changes (a test or build step
   covering changed code, a compile/lint error in touched files, a test the PR
@@ -291,8 +300,9 @@ not an automatic verdict, because CI flakes:
 - If it looks unrelated (an infrastructure failure, a known flaky job, a
   job that does not cover the changed code), you may APPROVE; name the failing
   check in the summary and say why you judged it unrelated.
-- Checks still running are not a reason to withhold a verdict; the
-  coordinator re-checks when CI finishes.
+- Checks still running: judge the code; if a check covering the changed code
+  is still running, say so in the summary. (When the coordinator supports it,
+  it re-checks the verdict once CI finishes.)
 
 ### 7. Output Format
 
@@ -373,7 +383,8 @@ not an automatic verdict, because CI flakes:
 Include `dropped_findings` for false positives or already-covered items. A
 `dropped_findings` reason must say why the finding is wrong or not this PR's
 responsibility under the scope rules above; for `category: architecture`
-findings it must cite the rule that allows the placement.
+findings it must say why the finding is wrong or cite the rule that allows
+the placement.
 Use `out_of_scope_findings` sparingly for exceptional valid observations that
 should not block or expand the PR. They are retained for internal history and
 maintainer triage, not as a default public review section.

@@ -56,10 +56,13 @@ When the PR is in `dashpay/platform` (typically `rs-drive-abci`), you are
 reviewing the application TenderDash drives, not TenderDash itself. For
 every changed ABCI handler or the state it keys (`PrepareProposal`,
 `ProcessProposal`, `ExtendVote`, `VerifyVoteExtension`, `FinalizeBlock`,
-`Commit`, `InitChain`, state sync, replay):
+`InitChain`, `CheckTx`, `Info`, state sync, replay; under
+`packages/rs-drive-abci/src/abci/handler/`):
 
-- Read how TenderDash actually calls it. The TenderDash source is checked
-  out in the evidence (`sister_repos`, `dashpay/tenderdash`); start from the
+- Read how TenderDash actually calls it. When the evidence lists
+  `sister_repos` with `dashpay/tenderdash`, the source is checked out there;
+  otherwise read github.com/dashpay/tenderdash at the version the PR pins.
+  Start from the
   consensus state machine (`internal/consensus/`) and the ABCI client calls.
 - Enumerate the honest sequences that reach the handler and check each one:
   a round change at the same height; a block **locked in round r and
@@ -78,9 +81,10 @@ every changed ABCI handler or the state it keys (`PrepareProposal`,
 ### 2. Review Scope
 
 First infer the PR's intended scope from its title, description,
-linked issues, and changed files. Separate defects **introduced or
-exposed by this PR** from pre-existing or merely adjacent hardening
-opportunities.
+linked issues, and changed files. Separate defects this PR introduces
+or is by its nature responsible for (its goal depends on them, or it
+adds code that works around or extends them) from pre-existing or
+merely adjacent hardening opportunities.
 
 Only in-scope defects belong in `findings`. Important but
 out-of-scope hardening ideas go in `out_of_scope_findings` with a
@@ -180,7 +184,7 @@ paths and line numbers** (line numbers from the PR head, matching
       "category": "security",
       "title": "Short description (one line)",
       "body": "Detailed explanation. Reference specific code. State the threat model: WHO can trigger this, HOW (concrete message / RPC / state sequence), and WHAT the consequence is (chain halt, fork, equivocation, panic, OOM, key exposure, etc.). Cite the invariant that is violated.",
-      "suggestion": "Exact replacement Go code for the selected lines that can be committed directly via GitHub's suggestion feature, or null if no concrete fix is appropriate. NEVER put natural-language explanation here — only valid Go code."
+      "suggestion": "Exact replacement code (Go for TenderDash, Rust for Platform) for the selected lines that can be committed directly via GitHub's suggestion feature, or null if no concrete fix is appropriate. NEVER put natural-language explanation here — only valid code in the file's language."
     }}
   ],
   "out_of_scope_findings": [

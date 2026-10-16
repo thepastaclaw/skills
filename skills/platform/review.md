@@ -45,7 +45,9 @@ mobile SDKs hold no business logic"):
   identity the Rust side owns
 - Validation duplicated in a binding or SDK instead of living once in its
   owner
-- A shipped versioned generation edited instead of a new one added
+- A shipped versioned generation edited in place when the edit can change
+  behaviour for a protocol version that selects it (the book allows inert
+  in-place edits; the PR must show the edit is inert)
 
 **Suggestion — upstream ownership.** A change that mainly works around a
 defect or missing capability in another Dash-owned project (rust-dashcore's

@@ -39,8 +39,9 @@ FFI findings without understanding of both sides are usually wrong.
 
 First determine the PR's intended scope from its title, description,
 linked issues, changed files, and surrounding conversation. Separate FFI
-defects introduced/exposed by this PR from pre-existing interop debt or
-broader binding cleanup. Only in-scope defects may be review findings or
+defects this PR introduces or is by its nature responsible for (new
+binding-layer logic counts even when it works) from pre-existing interop
+debt or broader binding cleanup. Only in-scope defects may be review findings or
 blockers. Important out-of-scope ideas belong in `out_of_scope_findings`
 with a suggestion to create a separate issue or author/maintainer-requested PR.
 
@@ -70,16 +71,21 @@ Focus exclusively on:
   alignment differences
 - **String encoding** — UTF-8 (Rust) vs UTF-16 (Swift/JS) vs
   null-terminated (C), missing encoding validation at boundaries
-- **Logic on the wrong side of the boundary** — FFI crates, bindings and
-  host SDKs (Swift, Kotlin, JS) marshal, persist/load Rust-emitted state,
-  and call existing library functions; they hold no business logic. Flag
-  new code in an FFI crate or host wrapper that decides anything (which
-  key, index or path, how many, whether to retry, how to rebuild or replay
-  an operation) or reconstructs identity/state the Rust side owns (e.g. a
-  host stamping callbacks with "the current generation"). The fix belongs
-  in the Rust library that owns the behaviour; carry the authoritative
-  value across the boundary instead. This applies even though the code is
-  pure Rust inside the FFI crate, or pure Swift/Kotlin.
+- **Logic on the wrong side of the boundary** — in `dashpay/platform` and
+  `dashpay/rust-dashcore`, the FFI crates (`rs-sdk-ffi`,
+  `rs-platform-wallet-ffi`, `key-wallet-ffi`) and the Swift and Kotlin SDKs
+  (`packages/swift-sdk`, `packages/kotlin-sdk`) marshal, persist/load
+  Rust-emitted state, and call existing library functions; they hold no
+  business logic. Flag new code there that decides anything (which key,
+  index or path, how many, whether to retry, how to rebuild or replay an
+  operation) or reconstructs identity/state the Rust side owns (e.g. a host
+  stamping callbacks with "the current generation"). The fix belongs in the
+  Rust library that owns the behaviour; carry the authoritative value across
+  the boundary instead. This applies even though the code is pure Rust
+  inside the FFI crate, or pure Swift/Kotlin. JS/WASM bindings mirror the
+  Rust shape and never validate. In app repositories (e.g.
+  `dashpay/dashwallet-ios`), app code may decide UI and flow; flag only code
+  that re-implements a decision an SDK or Rust function already makes.
 
 Do NOT flag:
 - Pure Rust or pure Swift code quality (other specialists handle
