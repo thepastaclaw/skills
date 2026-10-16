@@ -45,7 +45,35 @@ you eventually report, you must be able to articulate:
   exhaustion, leaked secret, etc.
 
 A finding without a plausible adversary and a concrete impact is
-almost certainly a false positive — drop it.
+almost certainly a false positive — drop it. **Exception: liveness and
+correctness under honest operation.** A handler that rejects, stalls or
+diverges on a sequence an honest TenderDash network produces is a defect
+with no adversary at all.
+
+### 1b. Reviewing the ABCI application side (dashpay/platform)
+
+When the PR is in `dashpay/platform` (typically `rs-drive-abci`), you are
+reviewing the application TenderDash drives, not TenderDash itself. For
+every changed ABCI handler or the state it keys (`PrepareProposal`,
+`ProcessProposal`, `ExtendVote`, `VerifyVoteExtension`, `FinalizeBlock`,
+`Commit`, `InitChain`, state sync, replay):
+
+- Read how TenderDash actually calls it. The TenderDash source is checked
+  out in the evidence (`sister_repos`, `dashpay/tenderdash`); start from the
+  consensus state machine (`internal/consensus/`) and the ABCI client calls.
+- Enumerate the honest sequences that reach the handler and check each one:
+  a round change at the same height; a block **locked in round r and
+  re-proposed unchanged in a later round** (relock / valid-block); vote
+  extensions and precommits for that block arriving in a later round than
+  the one this node processed; nil precommits; late votes from earlier
+  rounds; `ProcessProposal` for a block this node already accepted; restart
+  and WAL replay mid-height; catch-up and state sync.
+- State keyed by (height, round, block) must match what TenderDash
+  guarantees for each of those sequences. Keying by exact round, or
+  rejecting what an earlier round accepted, is a liveness bug unless
+  TenderDash rules that sequence out — cite where it does.
+- Determinism: every node must reach the same accept/reject decision for
+  the same message, independent of local timing or arrival order.
 
 ### 2. Review Scope
 

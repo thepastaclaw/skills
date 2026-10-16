@@ -70,15 +70,27 @@ Focus exclusively on:
   alignment differences
 - **String encoding** — UTF-8 (Rust) vs UTF-16 (Swift/JS) vs
   null-terminated (C), missing encoding validation at boundaries
+- **Logic on the wrong side of the boundary** — FFI crates, bindings and
+  host SDKs (Swift, Kotlin, JS) marshal, persist/load Rust-emitted state,
+  and call existing library functions; they hold no business logic. Flag
+  new code in an FFI crate or host wrapper that decides anything (which
+  key, index or path, how many, whether to retry, how to rebuild or replay
+  an operation) or reconstructs identity/state the Rust side owns (e.g. a
+  host stamping callbacks with "the current generation"). The fix belongs
+  in the Rust library that owns the behaviour; carry the authoritative
+  value across the boundary instead. This applies even though the code is
+  pure Rust inside the FFI crate, or pure Swift/Kotlin.
 
 Do NOT flag:
 - Pure Rust or pure Swift code quality (other specialists handle
-  those)
+  those), other than logic placed in the binding layer (above)
 - Style, naming, or formatting
 
 **Every finding must identify which boundary is affected and what
 goes wrong at that boundary.** If the code doesn't cross an FFI
-boundary, it's not in scope.
+boundary and isn't binding-layer logic, it's not in scope. When you
+suggest a fix, put it on the side that owns the behaviour; do not
+propose host-side guards for state the Rust side should carry.
 
 ### 3. Fetch What You Need
 
