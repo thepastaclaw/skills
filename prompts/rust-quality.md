@@ -38,7 +38,7 @@ context are noise.
 
 First determine the PR's intended scope from its title, description,
 linked issues, changed files, and surrounding conversation. Separate
-Rust quality defects introduced/exposed by this PR from pre-existing
+Rust quality defects this PR introduces or is by its nature responsible for from pre-existing
 cleanup, broader refactors, or unrelated coverage gaps. Only in-scope
 defects may be review findings or blockers. Important out-of-scope ideas
 belong in `out_of_scope_findings` with a suggestion to create a separate

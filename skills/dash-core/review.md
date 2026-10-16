@@ -63,6 +63,29 @@
   must be consistent across all three (or intentionally different
   with justification)
 
+## Maintainer Conventions (from review history)
+
+- **Prefer unit tests over functional tests** where either would do;
+  functional tests are the expensive part of CI.
+- **Do not add CI matrix jobs**; extend an existing target instead.
+- **Extend the existing test suite** for the area; check a new test
+  against the invariants stated at the top of the file it lands in
+  (for example `feature_block.py` builds pre-DIP3 blocks only).
+- **No tests that depend on a deployment about to be buried** (for
+  example v24 once it activates); use another deployment.
+- **No public helpers used only by tests**; move them into the test
+  code or use them in production code.
+- **`assert(false)` terminates.** Dash does not build with `NDEBUG`, so
+  code after a failed `assert` is dead; do not ask for a `throw` after it.
+- **Do not diverge from Bitcoin Core on hardening or build security
+  checks** (FORTIFY, symbol checks, guix); fix the build instead of
+  skipping the check.
+- **Release notes** are named `doc/release-notes-<PR>.md`.
+- **Prefer an existing mechanism** (`-vbparams`, `llmq/params`, an existing
+  helper) over a new flag, table or copy; a new duplicate is a finding.
+- For consensus or masternode-list code, use the list for the block being
+  validated (`GetListForBlock(pindexPrev)`), not the tip list.
+
 ## Things NOT to Flag
 
 - Style issues already caught by `clang-format` CI
