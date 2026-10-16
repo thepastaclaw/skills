@@ -84,6 +84,20 @@ Parse all supported marker forms and classify their intent:
   as declared and possibly intentional rather than automatically escalating
   them as undeclared drops. The declaration does not waive the mandatory
   test and release-note rules below.
+- **Already landed (blocking on a hit).** For every upstream PR the PR
+  claims to land (full or partial), run the same ancestry `git log --grep`
+  against `<review_base>`. If Dash already carries it (or the same hunk
+  arrived with an earlier backport of that PR), the new commit re-applies
+  it: report it as blocking, naming the existing commit.
+- **Later upstream removal (blocking on a hit).** For the files and code the
+  PR backports or patches, check whether later upstream PRs delete or
+  replace them (`git log <upstream-ref> --diff-filter=D -- <files>`, and
+  `git log <upstream-ref> -S '<symbol>'` after the backported merge). When
+  upstream later deletes the code, Dash should follow the deletion rather
+  than patch it; when a later upstream PR replaces it, say which.
+- **Release line.** When the PR or its batch states a target Dash release,
+  flag upstream PRs that belong to a later upstream release line than the
+  rest of the batch, so maintainers can confirm they belong in this release.
 
 ### Step 1: Identify upstream merge commits
 
