@@ -98,6 +98,15 @@
       "name": "tenderdash",
       "skill_path": "skills/tenderdash/",
       "enabled": true
+    },
+    {
+      "owner": "dashpay",
+      "name": "base-sdk",
+      "skill_path": "skills/base-sdk/",
+      "enabled": true,
+      "sister_repos": [
+        "dashpay/rust-dashcore"
+      ]
     }
   ],
   "settings": {
@@ -423,7 +432,8 @@
         "dashpay/dashwallet-ios",
         "dashpay/dash-wallet",
         "thephez/docs-platform",
-        "dashpay/quorum-list-server"
+        "dashpay/quorum-list-server",
+        "dashpay/base-sdk"
       ],
       "description": "Deep security analysis: cryptographic implementations, consensus safety, proof system soundness, race conditions in concurrent code, web/DOM injection, remote dependency boundaries, trust boundary violations, unsafe operations, timing attacks"
     },
@@ -435,7 +445,8 @@
         "dashpay/grovedb",
         "dashpay/dash-evo-tool",
         "dashpay/rust-dashcore",
-        "dashpay/quorum-list-server"
+        "dashpay/quorum-list-server",
+        "dashpay/base-sdk"
       ],
       "description": "Rust quality review: error handling discipline (no unwraps in production), architectural patterns, idiomatic Rust usage, proper lifetimes/generics, test structure, performance patterns (unnecessary clones, allocation in hot paths)"
     },
