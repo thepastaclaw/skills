@@ -111,10 +111,9 @@ code, or changes it in a way that carries the defect forward or depends on it.
   redesign the PR has no part in is REFUTED, whatever its severity. When one is important and
   really should be fixed, give the group a `title` and start its `evidence` with
   `Out of scope:`, then say what the problem is and recommend the follow-up PR that should
-  resolve it. The review publishes every refutation whose `evidence` says "out of scope" or
-  "outside" as a non-blocking follow-up suggestion, so use those words only there: start any
-  other scope refutation with `Not this PR's responsibility:`, and word other refutations
-  without them.
+  resolve it. Only a refutation whose `evidence` starts with `Out of scope:` is published, as a
+  non-blocking follow-up suggestion; start any other scope refutation with `Not this PR's
+  responsibility:`.
 
 ## CI
 
