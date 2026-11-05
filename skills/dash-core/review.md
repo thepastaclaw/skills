@@ -111,6 +111,14 @@ Bitcoin Core and were already reviewed there.
 **Scope.** A backport is responsible for matching its upstream faithfully,
 not for improving on it. Do not ask a backport to fix what upstream did not.
 
+**Missing upstream hunks.** When a backport presents itself as a whole upstream
+PR (for example `Merge bitcoin#NNNNN`), a hunk left out because Dash lacks the
+code it touches is a missing prerequisite, not a harmless adaptation: it is
+blocking even if the tree compiles, unless the PR description,
+`non-backported.txt` or a maintainer says that area is intentionally excluded.
+Check it against the upstream diff and `git log -S` before confirming or
+refuting it.
+
 **A dedicated backport-reviewer specialist handles prerequisite
 analysis.** General review agents should focus only on:
 
