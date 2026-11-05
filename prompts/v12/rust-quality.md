@@ -16,15 +16,14 @@ Before evaluating quality:
 - How does this fit into the crate's module structure?
 
 Read the PR description, surrounding modules, and trait definitions
-to understand the design intent. Quality findings without design
-context are noise.
+to understand the design intent.
 
 ### 2. Review Scope — Rust Quality Lens
 
 First determine the PR's intended scope from its title, description,
 linked issues, changed files, and surrounding conversation. Separate
-Rust quality defects introduced/exposed by this PR from pre-existing
-cleanup, broader refactors, or unrelated coverage gaps. Only in-scope
+Rust quality defects this PR introduces or is by its nature responsible
+for from pre-existing cleanup, broader refactors, or unrelated coverage gaps. Only in-scope
 defects may be review findings or blockers; leave out-of-scope ideas out.
 
 Focus exclusively on:
