@@ -12,8 +12,17 @@ GroveDB, a Merkle-tree authenticated database on RocksDB.
 ## Architecture & Core Dependency Chain
 
 ```
-dpp → drive → drive-abci → dash-sdk
+platform-version → dpp → drive ─┬→ drive-abci   (the node; drive `server`)
+                                └→ dash-sdk     (the client; drive `verify` only)
+                                     └→ rs-platform-wallet → FFI crates → Swift / Kotlin SDKs
 ```
+
+Dependencies only point downward. Above `drive` the graph forks: `drive-abci`
+and `dash-sdk` are separate consumers, and `dash-sdk` does not depend on
+`drive-abci`. The repository's `book/src/contributing/coding-conventions.md`
+("Where code goes") is the authoritative statement of where code lives; when
+this summary and the book disagree, the book wins. Read it on the reviewed
+revision when a placement question comes up.
 
 **Dependency rules (violations are blocking):**
 - DPP never imports Drive

@@ -84,6 +84,31 @@ Parse all supported marker forms and classify their intent:
   as declared and possibly intentional rather than automatically escalating
   them as undeclared drops. The declaration does not waive the mandatory
   test and release-note rules below.
+- **Already landed.** For every upstream PR the PR claims to land, search
+  `<review_base>` for an earlier commit whose *subject claims to land* the
+  same PR, with the number anchored so `bitcoin#1234` does not match
+  `bitcoin#12345`:
+
+  ```bash
+  git log --oneline <review_base> -E --regexp-ignore-case \
+    --grep='(Merge|backport).*bitcoin(/bitcoin)?#NNNNN([^0-9]|$)'
+  ```
+
+  Ignore "follow-up for" / "reference" commits. If an earlier commit fully
+  landed the PR, the new commit re-applies it: blocking, naming the existing
+  commit. If the earlier commit was declared partial, this PR may be the
+  completion; block only on hunks that are already present at
+  `<review_base>` (re-applied), and say which.
+- **Later upstream removal (informational by default).** Dash backports in
+  upstream order, so later upstream PRs often delete or replace backported
+  code; that is a future backport, not a defect here. Mention it only when
+  useful. Raise it as blocking only when the deleting/replacing upstream PR
+  is already an ancestor of `<review_base>` (Dash already took the removal),
+  or when the PR is a Dash-only patch to code upstream has since removed (the
+  patch should follow the upstream deletion instead; e.g. depends files).
+- **Release line.** When the PR or its batch states a target Dash release,
+  flag upstream PRs that belong to a later upstream release line than the
+  rest of the batch, so maintainers can confirm they belong in this release.
 
 ### Step 1: Identify upstream merge commits
 

@@ -65,6 +65,25 @@ interface catalogs are UTF-16LE.
   metadata must not be presented as a plausible `.ok`, `.classic`, unlocked, or empty
   value.
 
+## State and Lifecycle Checklist
+
+Most wallet bugs that reach maintainers only show up when you list state
+sequences. For each persisted state and each event the PR touches:
+
+- List every state × transition the PR names, plus re-entry, retry, offline,
+  locked device / keychain unavailable, first launch, background launch,
+  restore, wipe, and removal while an operation is in flight.
+- Trace nil / unknown / unreadable into every aggregate and decision: unknown
+  must not become zero, absent, or "no wallet"; a read failure is not absence.
+- Check early-return order against teardown and guards (teardown before a
+  guard, a guard released before the work it protects).
+- Check snapshot-then-store paths for lost updates and stale overwrites (a
+  newer state overwritten by a re-emit of an older one).
+- For a new launch or background entry point, list the existing reads that
+  now run in that context and check each.
+- For a gate that blocks the user (a hold, a migration card), list every
+  state in which it can never release.
+
 ## Seed, Wallet, Migration, and Wipe Safety
 
 - Review `DASHSYNC_KEY_MIGRATION.md` as the contract for any legacy-keychain, wallet

@@ -22,8 +22,19 @@ severity, scope, and where to look hardest. It does not restate the rules.
 - A batch that can leave state partially applied
 - Storage prefix generation made non-deterministic, or prefix isolation broken
 
-**Suggestion** — correctness or maintainability issues off the consensus path:
-missing error context, an over-broad error variant, avoidable tree opens,
+**Blocking — non-consensus correctness and ownership:**
+- Data loss, corruption, or a wrong result returned to a caller (including a
+  verifier accepting what it should reject), even off the consensus path
+- A bug fixed only behind a new `GroveVersion` while shipped versions keep the
+  bug, when the fix does not change consensus output (fix it for every
+  version, or explain why the old behaviour must be preserved)
+- A defect worked around in a second place (a second verifier, a caller-side
+  patch) instead of fixed in the component that owns it (the prover, the
+  Merk operation)
+- Build, CI or release broken on the base branch by this change
+
+**Suggestion** — other correctness or maintainability issues off the consensus
+path: missing error context, an over-broad error variant, avoidable tree opens,
 missing coverage for a non-consensus branch.
 
 **Nitpick** — naming, comment wording, formatting `cargo fmt` would not catch.
