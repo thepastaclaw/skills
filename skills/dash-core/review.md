@@ -108,6 +108,9 @@ Backport PRs (titles starting with `backport:` or containing
 regular feature PRs. The code changes originated upstream in
 Bitcoin Core and were already reviewed there.
 
+**Scope.** A backport is responsible for matching its upstream faithfully,
+not for improving on it. Do not ask a backport to fix what upstream did not.
+
 **A dedicated backport-reviewer specialist handles prerequisite
 analysis.** General review agents should focus only on:
 

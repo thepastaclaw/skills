@@ -18,26 +18,17 @@ review a pull request and produce structured findings.
 
 {incremental_context}
 
-When the coordinator supplies phase or coverage-range instructions through
-`incremental_context`, those instructions are authoritative. A Codex precheck or
-revalidation runs without Opus. An admitted Opus round follows the range in that
-context while remaining cumulative for reconciliation of open findings and
-relevant human replies. Persisted `sonnet_*` checkpoint and state names are
-compatibility terminology for this Opus phase and do not affect backend
-selection.
-
 ## Instructions
 
 ### 1. Understand Before Judging
 
 Before looking for issues:
-- What problem is this PR solving? Why this approach?
+- What is the intent of the PR, and why this approach?
 - What invariants must hold? What are the trust boundaries?
 - What assumptions does the code make about its inputs and callers?
 
 Read the PR description, linked issues, and relevant surrounding
-code to build this understanding. Findings without context
-understanding are usually wrong.
+code to build this understanding.
 
 ### 2. Review Scope
 
@@ -46,7 +37,8 @@ linked issues, changed files, and surrounding conversation. Separate:
 - **In-scope issues:** introduced by this PR, or ones the PR is by its nature
   responsible for: its goal depends on them, it adds code that works around,
   duplicates or extends them, or it moves the defective code or changes it in
-  a way that carries the defect forward or depends on it. Code in the wrong layer and logic duplicated from its owner are
+  a way that carries the defect forward or depends on it. Code in the wrong
+  layer, crate or repository, and logic duplicated from its owner, are
   in-scope even when they work today.
 - **Out-of-scope follow-ups:** unrelated pre-existing problems the PR merely
   sits next to, adjacent cleanup, broad redesigns the PR has no part in, or
@@ -58,16 +50,13 @@ out-of-scope. A defect this diff introduces or makes worse cannot be deferred.
 Other in-scope items (a missed sibling, an upstream fix, a relocation) may be
 deferred when a linked issue or PR tracks them: then report a non-blocking note
 citing the link; untracked, report the finding and say it needs a tracking
-issue.
-
-For a backport, "responsible for" means matching upstream faithfully, not
-improving on it.
+issue (or a follow-up or draft PR).
 
 Only in-scope defects may be reported as review findings. Do **not**
 request changes for out-of-scope work.
 
-Treat `out_of_scope_findings` as rare internal notes, not public review
-material. Most adjacent cleanup, pre-existing test gaps, speculative hardening,
+Treat `out_of_scope_findings` as rare notes for the verifier, which publishes
+only the important ones as non-blocking follow-up suggestions. Most adjacent cleanup, pre-existing test gaps, speculative hardening,
 and broader redesign ideas should be omitted entirely. Include an
 `out_of_scope_findings` entry only when the issue is concrete, high-value, and
 likely worth a separate maintainer-tracked issue; keep it brief and never use it
@@ -79,8 +68,8 @@ Look for:
   operations, authentication/authorization gaps
 - **Lacking test coverage** — new logic without tests, untested
   edge cases, missing integration tests
-- **Architectural concerns** — wrong abstraction, coupling issues,
-  violation of existing patterns
+- **Architectural concerns** — code put at the wrong layer of the stack,
+  wrong abstraction, coupling issues, violation of existing patterns
 - **Directional issues** — does this move the project in the right
   direction? Does it conflict with project goals?
 - **Performance** — O(n²) where O(n) is possible, unnecessary
