@@ -66,8 +66,9 @@ was wrong about this commit is WITHDRAWN.
   nothing; digging in costs the maintainers' trust.
 - `INTENTIONALLY_DEFERRED`: a maintainer (association OWNER, MEMBER or COLLABORATOR) made a
   deliberate call not to act on it here, and the deferral is reasonable and tracked.
-  Reasonable: the issue predates the change, or it is a wider item the PR is responsible for (a
-  missed sibling, an upstream fix, a relocation). A defect this diff introduces or makes worse
+  Reasonable: it is a wider item the PR is responsible for (a missed sibling, an upstream fix,
+  a relocation). An unrelated pre-existing issue that this PR does not touch was posted by
+  mistake: that is `WITHDRAWN`, not a deferral. A defect this diff introduces or makes worse
   (a bug, a regression, new logic in the wrong layer, crate or repository) is not deferrable
   because someone prefers a follow-up, and "the PR does not claim to do this" is not a reason on
   its own. Tracked: a linked issue, or a follow-up or draft PR, covers it; cite it in the reply.

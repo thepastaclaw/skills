@@ -48,7 +48,7 @@ tracking issue or a follow-up or draft PR is linked; whether a deferral stands i
 
 Leave out unrelated pre-existing problems the PR merely sits next to, adjacent cleanup, broad
 redesigns the PR has no part in, and style that linters and formatters catch. The exception is
-an adjacent problem that is important and really should be fixed: report it as a `suggestion`
+an adjacent problem that is important and really should be fixed: report it with severity `suggestion`
 and say in its body that it predates this PR, so it can be published as a non-blocking
 follow-up suggestion instead of being lost.
 

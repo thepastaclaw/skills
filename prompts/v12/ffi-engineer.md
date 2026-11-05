@@ -26,7 +26,7 @@ linked issues, changed files, and surrounding conversation. Separate FFI
 defects this PR introduces or is by its nature responsible for (new
 binding-layer logic counts even when it works) from pre-existing interop
 debt or broader binding cleanup. Only in-scope defects may be review findings or
-blockers; leave out-of-scope ideas out.
+blockers; leave out-of-scope ideas out, except an important adjacent problem, which goes in as the Scope section below says.
 
 Focus exclusively on:
 - **Memory ownership across boundaries** —

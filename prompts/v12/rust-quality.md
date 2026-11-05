@@ -24,7 +24,7 @@ First determine the PR's intended scope from its title, description,
 linked issues, changed files, and surrounding conversation. Separate
 Rust quality defects this PR introduces or is by its nature responsible
 for from pre-existing cleanup, broader refactors, or unrelated coverage gaps. Only in-scope
-defects may be review findings or blockers; leave out-of-scope ideas out.
+defects may be review findings or blockers; leave out-of-scope ideas out, except an important adjacent problem, which goes in as the Scope section below says.
 
 Focus exclusively on:
 - **Error handling discipline** — `unwrap()` in production code,

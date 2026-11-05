@@ -79,7 +79,7 @@ at. Do each of these:
    offline, late or lost notifications, removal while in flight) and check each.
 4. **Check the base.** With `base_drift` in the evidence when present, else `git log` on the
    base branch: does a commit that landed on the base since the branch point already do this,
-   supersede it, or conflict with it?
+   supersede it, or conflict with it? Does the branch still merge cleanly?
 5. **Read the sister repositories** when the change depends on, works around, duplicates, or is
    driven by code there: the checkouts the evidence lists when present, otherwise the pinned
    sources (for Rust, under `~/.cargo/git/checkouts`) or the GitHub repository. Search their

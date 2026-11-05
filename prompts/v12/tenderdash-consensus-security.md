@@ -74,7 +74,7 @@ or is by its nature responsible for (its goal depends on them, or it
 adds code that works around or extends them) from pre-existing or
 merely adjacent hardening opportunities.
 
-Only in-scope defects belong in your candidates; leave out-of-scope ideas out.
+Only in-scope defects belong in your candidates; leave out-of-scope ideas out, except an important adjacent problem, which goes in as the Scope section below says.
 
 Focus exclusively on:
 
