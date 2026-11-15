@@ -107,6 +107,16 @@
       "sister_repos": [
         "dashpay/rust-dashcore"
       ]
+    },
+    {
+      "owner": "PastaPastaPasta",
+      "name": "dashwallet-desktop",
+      "skill_path": "skills/dashwallet-desktop/",
+      "enabled": true,
+      "sister_repos": [
+        "dashpay/platform",
+        "dashpay/rust-dashcore"
+      ]
     }
   ],
   "settings": {
@@ -424,7 +434,8 @@
         "dashpay/dash-wallet",
         "thephez/docs-platform",
         "dashpay/quorum-list-server",
-        "dashpay/base-sdk"
+        "dashpay/base-sdk",
+        "PastaPastaPasta/dashwallet-desktop"
       ],
       "description": "Deep security analysis: cryptographic implementations, consensus safety, proof system soundness, race conditions in concurrent code, web/DOM injection, remote dependency boundaries, trust boundary violations, unsafe operations, timing attacks"
     },
@@ -437,7 +448,8 @@
         "dashpay/dash-evo-tool",
         "dashpay/rust-dashcore",
         "dashpay/quorum-list-server",
-        "dashpay/base-sdk"
+        "dashpay/base-sdk",
+        "PastaPastaPasta/dashwallet-desktop"
       ],
       "description": "Rust quality review: error handling discipline (no unwraps in production), architectural patterns, idiomatic Rust usage, proper lifetimes/generics, test structure, performance patterns (unnecessary clones, allocation in hot paths)"
     },
@@ -447,7 +459,8 @@
       "repos": [
         "dashpay/platform",
         "dashpay/rust-dashcore",
-        "dashpay/dashwallet-ios"
+        "dashpay/dashwallet-ios",
+        "PastaPastaPasta/dashwallet-desktop"
       ],
       "description": "FFI and cross-language boundary review: memory safety across Swift/Rust/WASM boundaries, correct ownership transfer, FFI-safe types, panic safety across FFI, WASM binding correctness, ABI stability"
     },
