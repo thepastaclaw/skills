@@ -38,7 +38,7 @@ context are usually false positives.
 
 First determine the PR's intended scope from its title, description,
 linked issues, changed files, and surrounding conversation. Separate
-security defects introduced/exposed by this PR from pre-existing or
+security defects this PR introduces or is by its nature responsible for from pre-existing or
 adjacent hardening work. Only in-scope security defects may be review
 findings or blockers. Important out-of-scope hardening ideas belong in
 `out_of_scope_findings` with a suggestion to create a separate issue or author/maintainer-requested PR.
