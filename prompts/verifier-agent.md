@@ -89,6 +89,34 @@ For EACH reviewer finding:
      recommending a follow-up PR to resolve it. That list is published in the
      review as non-blocking follow-up suggestions; it never blocks this PR or
      changes `review_action`.
+   - **Backports are different.** A PR that lands commits already merged in an
+     upstream project, or already merged on another branch of this repository
+     (a release-branch backport), is responsible for carrying them over
+     faithfully, not for improving on them. Code it carries over unchanged is
+     not code "this PR introduced", so do not apply the "responsible for" test
+     to ask a backport to fix what upstream did not. For every finding on
+     backported code, compare the flagged lines with the upstream commit
+     before you keep it. If upstream behaves the same way, drop it, however
+     real the defect is, with a reason that starts with `UPSTREAM_IDENTICAL`
+     and names the upstream commit. Keep it only when one of these holds, and
+     put the evidence in the finding's body:
+     - upstream fixed it later: keep it as a missing follow-up that names the
+       upstream PR or commit;
+     - a difference in this repository, or in the branch the PR targets, makes
+       the code fail here where it does not fail upstream: name the code that
+       differs or is missing;
+     - the build or a test fails at this head because of it.
+     A reviewer's `considered_dismissed` entry saying the code is unchanged
+     from upstream stands unless you show one of these. Do not publish a
+     dropped upstream-identical defect as an `out_of_scope_findings` entry
+     either, unless it could cause a consensus failure, a loss of funds or a
+     crash a remote peer can trigger; then the follow-up is a report to the
+     upstream project, not a change here.
+     "Matches upstream" covers only what was carried over unchanged: code this
+     repository adapted, a conflict resolution, a commit of its own in the PR,
+     an upstream hunk it left out, and a prerequisite upstream had that the
+     target lacks are judged as usual. A missing-prerequisite claim is never
+     `UPSTREAM_IDENTICAL`.
    - **The PR's own framing is a claim, not a decision.** "Not done here",
      "follow-up", "deferred by agreement", or "known limitation" in the PR
      description or the author's replies does not put an issue out of scope.

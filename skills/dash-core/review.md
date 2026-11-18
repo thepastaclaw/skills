@@ -89,8 +89,9 @@
 ## Things NOT to Flag
 
 - Style issues already caught by `clang-format` CI
-- Bitcoin Core upstream code in backport PRs — see "Backport PR
-  Review Process" above for the specialized review approach
+- Bitcoin Core upstream code in backport PRs: a defect that is the same
+  in the upstream commit is not a finding — see the scope rule in
+  "Backport PR Review Process" below
 - `TODO` / `FIXME` comments that are part of upstream Bitcoin Core
 - Minor variable naming differences from Bitcoin Core convention
   in Dash-specific code (some divergence is historical)
@@ -108,8 +109,43 @@ Backport PRs (titles starting with `backport:` or containing
 regular feature PRs. The code changes originated upstream in
 Bitcoin Core and were already reviewed there.
 
-**Scope.** A backport is responsible for matching its upstream faithfully,
-not for improving on it. Do not ask a backport to fix what upstream did not.
+**Scope: is the flagged code upstream's or Dash's?** A backport is
+responsible for matching its upstream faithfully, not for improving on it. Do
+not ask a backport to fix what upstream did not. Before reporting a defect in
+backported code, find out where the flagged lines come from:
+
+- The Dash commit names the upstream PR (`Merge bitcoin/bitcoin#NNNNN`); its
+  merge commit is `gh api /repos/bitcoin/bitcoin/pulls/NNNNN --jq
+  .merge_commit_sha`. Read upstream's version of the file with `git show
+  <upstream_merge>:<path>` when the checkout has that commit, otherwise with
+  `gh api "/repos/bitcoin/bitcoin/contents/<path>?ref=<upstream_merge>" --jq
+  .content | base64 -d`. Do not fetch Bitcoin Core into the checkout. For a
+  backport of Dash's own PR to a release branch, upstream is the commit on
+  `develop`.
+- If you cannot read upstream's version at all, say so in the finding. A
+  defect in backported code you could not compare is at most a suggestion,
+  unless the build or a test fails because of it.
+- **Upstream behaves the same way: not a finding**, however real the defect
+  is. This covers latent upstream bugs, narrow races, unhandled error paths,
+  loose input checking in upstream scripts and tools, flaky upstream tests and
+  upstream documentation wording.
+- **Exceptions.** Each needs its evidence named in the finding:
+  1. *Upstream fixed it later.* Look for the fix in upstream history after
+     that commit (`gh api "/repos/bitcoin/bitcoin/commits?path=<path>"`, or
+     `git log <upstream_merge>..bitcoin-upstream/master -- <path>` when the
+     checkout has that ref). Report it as `Missing follow-up: bitcoin#NNNNN`:
+     a backport that brings in a bug or regression upstream later fixed
+     should land the fix in the same PR, so that is blocking. A later
+     upstream change that only touches documentation, comments or tests is a
+     suggestion.
+  2. *A Dash difference makes it fail here.* Name the Dash code (a Dash
+     subsystem, a caller Dash changed, a different default or parameter, a
+     Dash-only file) that makes upstream's code misbehave in Dash where it
+     does not in Bitcoin Core. "It is wrong in Dash too" is not a difference.
+  3. *The build or a test fails at this head* because of it. Cite the check.
+- Code Dash changed is Dash's: an adapted hunk, a conflict resolution, a
+  Dash-only commit in the PR, an upstream hunk left out, or a prerequisite
+  upstream had that Dash lacks. Review it as usual.
 
 **A dedicated backport-reviewer specialist handles prerequisite
 analysis.** General review agents should focus only on:
@@ -130,11 +166,12 @@ analysis.** General review agents should focus only on:
 
 - **Do NOT perform prerequisite analysis** — the backport-reviewer
   specialist owns this. Don't trace upstream dependency chains or
-  compare starting states.
+  compare starting states. (Looking for a later upstream fix under
+  the scope rule above is not prerequisite analysis.)
 - **Do NOT re-review upstream behavior changes** — these were
   reviewed by Bitcoin Core maintainers. Don't second-guess
-  upstream design decisions unless they are critical/consensus-
-  affecting in the Dash context.
+  upstream design decisions or report upstream's own defects,
+  except under the scope rule's three exceptions above.
 - **Do NOT flag upstream code style** — backports preserve
   original formatting.
 - **Do NOT flag cosmetic divergences** from upstream — branding
@@ -145,7 +182,9 @@ analysis.** General review agents should focus only on:
 
 - **blocking** — merge resolution error that will cause build
   failure or runtime crash. Dash-specific code broken by the
-  backport. Consensus safety issue.
+  backport. Consensus safety issue in Dash's adaptation or its
+  interaction with Dash code. A missing upstream follow-up that
+  fixes a bug the backport brings in.
 - **suggestion** — potential Dash subsystem interaction concern.
   Test adaptation that might need Dash-specific adjustment.
 - **nitpick** — minor observation about the adaptation quality.

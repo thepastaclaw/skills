@@ -52,6 +52,32 @@ deferred when a linked issue or PR tracks them: then report a non-blocking note
 citing the link; untracked, report the finding and say it needs a tracking
 issue (or a follow-up or draft PR).
 
+**Backports.** A PR that lands commits already merged in an upstream project,
+or already merged on another branch of this repository (a release-branch
+backport), is responsible for carrying them over faithfully, not for improving
+on them. Code it carries over unchanged is not code "this PR introduced", and
+the "responsible for" test above does not make a backport answerable for what
+its upstream did not fix. Before you report a defect in backported code,
+compare the flagged lines with the upstream commit. If upstream behaves the
+same way, it is out of scope, however real the defect is, unless one of these
+holds and you name the evidence:
+- upstream fixed it later: name the upstream PR or commit and report that
+  follow-up as missing from this backport;
+- a difference in this repository, or in the branch the PR targets, makes the
+  code fail here where it does not fail upstream: name the code that differs
+  or is missing;
+- the build or a test fails at this head because of it: cite the check.
+
+Do not record an upstream-identical defect in `out_of_scope_findings` either,
+unless it could cause a consensus failure, a loss of funds or a crash a remote
+peer can trigger.
+
+"Matches upstream" covers only what was carried over unchanged. Code this
+repository adapted, a conflict resolution, a commit of its own in the PR, an
+upstream hunk it left out, and a prerequisite upstream had that the target
+lacks are reviewed as usual. The review skill above may say how to find the
+upstream commit.
+
 Only in-scope defects may be reported as review findings. Do **not**
 request changes for out-of-scope work.
 
