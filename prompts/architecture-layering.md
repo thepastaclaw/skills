@@ -142,8 +142,9 @@ code replacement or `null`; put architectural guidance in `body`.
       "severity": "blocking|suggestion|nitpick",
       "confidence": 0.0,
       "category": "architecture|bug|logic|security",
-      "title": "Short placement problem",
-      "body": "Explain the owning invariant, why this layer is wrong, and the exact crate/module where the fix belongs. Describe the callers or behavior left incorrect by the current placement.",
+      "title": "What goes wrong because of where the code lives, and when (one line; not the fix)",
+      "impact": "One sentence: who hits the problem, under what condition, and what they then see or lose",
+      "body": "Lead with the consequence, then the mechanism, then the fix. Explain the owning invariant, why this layer is wrong, and the exact crate/module where the fix belongs. Describe the callers or behavior left incorrect by the current placement.",
       "suggestion": null
     }}
   ],
@@ -163,5 +164,20 @@ code replacement or `null`; put architectural guidance in `body`.
   ]
 }}
 ```
+
+**Writing a finding.** Write each new finding problem-first:
+- `title` says what goes wrong and when, in plain words a maintainer
+  understands without reading the body. It is not an instruction and does
+  not name the fix; the fix belongs in the body. Bad: "Pass the provisioning
+  alias as a JSON string". Good: "`--alias 123` is rejected as a number and
+  `--alias null` silently uses the default name".
+- `impact` is one sentence saying who hits the problem, under what condition,
+  and what they then see or lose, for example "Devnet only: wiping identities
+  while one is being edited can leave it listed with its keys deleted."
+- `body` leads with the consequence, then the mechanism, then the fix.
+
+These rules are for new findings only. A carried (STILL_VALID) prior finding
+keeps its `original_title` byte-for-byte; you may write or refresh its
+`impact`.
 
 {incremental_instructions}

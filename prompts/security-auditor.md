@@ -98,8 +98,9 @@ file paths and line numbers.
       "severity": "blocking|suggestion|nitpick",
       "confidence": 0.0-1.0,
       "category": "security",
-      "title": "Short description (one line)",
-      "body": "Detailed explanation with reasoning. Reference specific code. Explain the attack scenario or security impact — WHO can exploit this, HOW, and WHAT is the consequence.",
+      "title": "What goes wrong and when, in plain words (one line; not the fix)",
+      "impact": "One sentence: who hits the problem, under what condition, and what they then see or lose",
+      "body": "Lead with the consequence, then the mechanism, then the fix. Detailed explanation with reasoning. Reference specific code. Explain the attack scenario or security impact — WHO can exploit this, HOW, and WHAT is the consequence.",
       "suggestion": "Exact replacement code for the selected lines that can be committed directly via GitHub's suggestion feature, or null if no concrete fix. NEVER put natural language here — only valid code."
     }}
   ],
@@ -112,6 +113,21 @@ file paths and line numbers.
   ]
 }}
 ```
+
+**Writing a finding.** Write each new finding problem-first:
+- `title` says what goes wrong and when, in plain words a maintainer
+  understands without reading the body. It is not an instruction and does
+  not name the fix; the fix belongs in the body. Bad: "Pass the provisioning
+  alias as a JSON string". Good: "`--alias 123` is rejected as a number and
+  `--alias null` silently uses the default name".
+- `impact` is one sentence saying who hits the problem, under what condition,
+  and what they then see or lose, for example "Devnet only: wiping identities
+  while one is being edited can leave it listed with its keys deleted."
+- `body` leads with the consequence, then the mechanism, then the fix.
+
+These rules are for new findings only. A carried (STILL_VALID) prior finding
+keeps its `original_title` byte-for-byte; you may write or refresh its
+`impact`.
 
 ### Severity Guide
 
