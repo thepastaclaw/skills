@@ -137,7 +137,11 @@ backported code, find out where the flagged lines come from:
      a backport that brings in a bug or regression upstream later fixed
      should land the fix in the same PR, so that is blocking. A later
      upstream change that only touches documentation, comments or tests is a
-     suggestion.
+     suggestion. A maintainer may defer the follow-up to its own later
+     backport, and that needs no tracking issue: Dash tracks every upstream
+     PR it has not taken yet. Once a maintainer has deferred an upstream PR
+     on this pull request, do not report that upstream PR as missing again,
+     for this symptom or for anything else it fixes.
   2. *A Dash difference makes it fail here.* Name the Dash code (a Dash
      subsystem, a caller Dash changed, a different default or parameter, a
      Dash-only file) that makes upstream's code misbehave in Dash where it

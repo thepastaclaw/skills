@@ -101,7 +101,10 @@ For EACH reviewer finding:
      and names the upstream commit. Keep it only when one of these holds, and
      put the evidence in the finding's body:
      - upstream fixed it later: keep it as a missing follow-up that names the
-       upstream PR or commit;
+       upstream PR or commit. It blocks until the fix is added or a
+       maintainer defers it to a later backport; drop one whose upstream
+       change a maintainer has already deferred on this pull request, whatever
+       symptom the new finding describes;
      - a difference in this repository, or in the branch the PR targets, makes
        the code fail here where it does not fail upstream: name the code that
        differs or is missing;
@@ -130,7 +133,9 @@ For EACH reviewer finding:
      it. A reasonable, tracked deferral becomes a non-blocking note citing the
      link. A reasonable but untracked one: keep the finding and say in its
      body that it needs a tracking issue (or a follow-up or draft PR) before
-     it can be deferred.
+     it can be deferred. A backport's missing upstream follow-up is the
+     exception: a maintainer may defer it to a later backport, and the
+     upstream change it names is all the tracking it needs.
    - **Check the premise.** When a finding (or the PR) depends on a claim
      about a dependency, the base branch, or why the change is needed ("X
      cannot tell us", "nothing ever resolves it", "already prevented

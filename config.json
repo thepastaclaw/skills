@@ -5,7 +5,8 @@
       "owner": "dashpay",
       "name": "dash",
       "skill_path": "skills/dash-core/",
-      "enabled": true
+      "enabled": true,
+      "upstream_repos": ["bitcoin/bitcoin", "dashpay/dash"]
     },
     {
       "owner": "dashpay",

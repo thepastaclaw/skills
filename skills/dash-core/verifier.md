@@ -17,10 +17,14 @@ For each prerequisite claim:
      touches is a missing prerequisite, not a harmless adaptation. Keep it,
      as blocking, even if the Dash tree compiles.
    - Drop it only with evidence: the code is already there (name the commit),
-     the claim is wrong (show the upstream diff), or the PR declares the
+     the claim is wrong (show the upstream diff), the PR declares the
      omission (its description, a `partial` subject, a `not_for_dash`
      adaptation note, Dash's non-backported tracking, or a maintainer's
-     statement).
+     statement), or the hunk exists only to serve a feature Dash never
+     adopts. The repository's `AGENTS.md` lists those under "Upstream
+     features Dash never adopts" (SegWit, replace-by-fee, `feefilter`,
+     Signet); read it at the head before you keep a claim about such a hunk.
+     These need no `partial` marker and no note.
 3. **Record it.** Add one entry to `prerequisite_adjudications`:
    `{"claim": "<the finding's title>", "source": [...], "verdict": "KEEP|DROP",
    "evidence": "<what you checked and found>"}`.
