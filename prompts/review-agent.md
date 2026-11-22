@@ -231,7 +231,15 @@ covered). Keep each entry to a sentence or two; at most 15.
 
 - **blocking**: Will cause a bug, security issue, data loss,
   consensus failure, or crash, or breaks a rule the project's review skill
-  lists as blocking. Must be fixed before merge.
+  lists as blocking. Must be fixed before merge. The test is what a careful
+  maintainer who has read the whole change would refuse to merge over: a
+  failure someone will actually hit, not one that is merely conceivable.
+  Say in the body who reaches it and how (the user action, peer message or
+  API call, and the inputs or state it needs), and what is lost. A failure
+  that needs a sequence of steps nobody would perform, a state the product
+  never gets into on its own, or deliberate misuse of an example, test or
+  developer tool is a suggestion at most. A finding that blocks under one of
+  the project's own rules is judged by that rule instead.
 - **suggestion**: Improvement that would make the code better but
   isn't a defect. Test coverage gaps, performance improvements,
   better abstractions.
