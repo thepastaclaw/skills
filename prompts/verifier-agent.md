@@ -141,11 +141,14 @@ For EACH reviewer finding:
      responsible for in the wider sense (a missed sibling, an upstream fix, a
      relocation) may be deferred. Tracked means a linked issue or PR covers
      it. A reasonable, tracked deferral becomes a non-blocking note citing the
-     link. A reasonable but untracked one: keep the finding and say in its
-     body that it needs a tracking issue (or a follow-up or draft PR) before
-     it can be deferred. A backport's missing upstream follow-up is the
-     exception: a maintainer may defer it to a later backport, and the
-     upstream change it names is all the tracking it needs.
+     link. A reasonable but untracked one: reconcile it
+     INTENTIONALLY_DEFERRED without `tracking`, with a `reason` saying it
+     moves to a follow-up; the orchestrator finds or files the tracking
+     issue, or, where it cannot, keeps the finding and asks for a link. Do
+     not keep such a finding for want of an issue. A backport's missing
+     upstream follow-up is the exception: a maintainer may defer it to a
+     later backport, and the upstream change it names is all the tracking it
+     needs.
    - **Check the premise.** When a finding (or the PR) depends on a claim
      about a dependency, the base branch, or why the change is needed ("X
      cannot tell us", "nothing ever resolves it", "already prevented
