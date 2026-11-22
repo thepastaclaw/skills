@@ -55,3 +55,15 @@ Example:
   }
 ]
 ```
+
+## Missing upstream follow-ups (verifier only)
+
+A finding titled `Missing follow-up: bitcoin#NNNNN` asks for a later upstream
+fix of a backported commit. Keep `"upstream_followup": true` on every such
+finding you keep. Follow-ups are enumerated in the first full review of the
+commit: on a later round, keep one as blocking only for a backport commit that
+was added or changed since the last reviewed head (by the range-diff of the
+PR's own commits); for a commit already reviewed it is a non-blocking note at
+most. A maintainer may defer a follow-up to its own later backport; once one
+has deferred an upstream PR on this pull request, do not keep a finding that
+reports that upstream PR as missing again.

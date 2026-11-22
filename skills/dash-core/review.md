@@ -141,7 +141,12 @@ backported code, find out where the flagged lines come from:
      backport, and that needs no tracking issue: Dash tracks every upstream
      PR it has not taken yet. Once a maintainer has deferred an upstream PR
      on this pull request, do not report that upstream PR as missing again,
-     for this symptom or for anything else it fixes.
+     for this symptom or for anything else it fixes. Missing follow-ups of a
+     backported commit are enumerated in the first full review of that
+     commit. A later round reports a missing follow-up only for a backport
+     commit that was added or changed since the last reviewed head (by the
+     range-diff of the PR's own commits), or else as a non-blocking note.
+     Set `"upstream_followup": true` on every such finding.
   2. *A Dash difference makes it fail here.* Name the Dash code (a Dash
      subsystem, a caller Dash changed, a different default or parameter, a
      Dash-only file) that makes upstream's code misbehave in Dash where it
@@ -188,7 +193,9 @@ analysis.** General review agents should focus only on:
   failure or runtime crash. Dash-specific code broken by the
   backport. Consensus safety issue in Dash's adaptation or its
   interaction with Dash code. A missing upstream follow-up that
-  fixes a bug the backport brings in.
+  fixes a bug the backport brings in, raised in the first full review
+  of its commit or for a commit added or changed since the last
+  reviewed head.
 - **suggestion** — potential Dash subsystem interaction concern.
   Test adaptation that might need Dash-specific adjustment.
 - **nitpick** — minor observation about the adaptation quality.
