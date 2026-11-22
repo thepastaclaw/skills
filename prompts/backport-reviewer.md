@@ -111,8 +111,10 @@ Parse all supported marker forms and classify their intent:
   it as `Missing follow-up: bitcoin#NNNNN` with `"upstream_followup": true`.
   Missing follow-ups of a backported commit are enumerated in the first full
   review of that commit. A later round reports one only for a backport commit
-  that was added or changed since the last reviewed head (by the range-diff
-  of the PR's own commits), or else as a non-blocking note. A maintainer may
+  that was added or changed since the last reviewed head, or else as a
+  non-blocking note. A missing hunk of the upstream change a commit claims to
+  land is different: it blocks whenever it is found, in a later round too. A
+  maintainer may
   defer a follow-up to its own later backport; once one has deferred an
   upstream PR on this pull request, do not report that upstream PR as missing
   again.

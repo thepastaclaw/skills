@@ -144,9 +144,11 @@ backported code, find out where the flagged lines come from:
      for this symptom or for anything else it fixes. Missing follow-ups of a
      backported commit are enumerated in the first full review of that
      commit. A later round reports a missing follow-up only for a backport
-     commit that was added or changed since the last reviewed head (by the
-     range-diff of the PR's own commits), or else as a non-blocking note.
-     Set `"upstream_followup": true` on every such finding.
+     commit that was added or changed since the last reviewed head, or else
+     as a non-blocking note. Set `"upstream_followup": true` on every such
+     finding. A hunk of the upstream change the commit claims to land that
+     is left out (a missing hunk) is different: it blocks whenever it is
+     found, in a later round too.
   2. *A Dash difference makes it fail here.* Name the Dash code (a Dash
      subsystem, a caller Dash changed, a different default or parameter, a
      Dash-only file) that makes upstream's code misbehave in Dash where it
