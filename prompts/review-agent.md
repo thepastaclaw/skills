@@ -50,7 +50,8 @@ out-of-scope. A defect this diff introduces or makes worse cannot be deferred.
 Other in-scope items (a missed sibling, an upstream fix, a relocation) may be
 deferred when a linked issue or PR tracks them: then report a non-blocking note
 citing the link; untracked, report the finding and say it needs a tracking
-issue (or a follow-up or draft PR).
+issue (or a follow-up or draft PR). The one exception is a backport's missing
+upstream follow-up (below), which a maintainer may defer without a link.
 
 **Backports.** A PR that lands commits already merged in an upstream project,
 or already merged on another branch of this repository (a release-branch
@@ -62,7 +63,11 @@ compare the flagged lines with the upstream commit. If upstream behaves the
 same way, it is out of scope, however real the defect is, unless one of these
 holds and you name the evidence:
 - upstream fixed it later: name the upstream PR or commit and report that
-  follow-up as missing from this backport;
+  follow-up as missing from this backport. It blocks until the fix is added
+  or a maintainer defers it to a later backport, which needs no tracking
+  issue (the project tracks the upstream changes it has not taken). Do not
+  report an upstream change a maintainer has already deferred on this pull
+  request, for the same symptom or another one it fixes;
 - a difference in this repository, or in the branch the PR targets, makes the
   code fail here where it does not fail upstream: name the code that differs
   or is missing;
