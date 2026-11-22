@@ -106,6 +106,18 @@ Parse all supported marker forms and classify their intent:
   is already an ancestor of `<review_base>` (Dash already took the removal),
   or when the PR is a Dash-only patch to code upstream has since removed (the
   patch should follow the upstream deletion instead; e.g. depends files).
+- **Later upstream fixes (missing follow-ups).** A later upstream PR that
+  fixes a bug the backported commit brings in is a missing follow-up: report
+  it as `Missing follow-up: bitcoin#NNNNN` with `"upstream_followup": true`.
+  Missing follow-ups of a backported commit are enumerated in the first full
+  review of that commit. A later round reports one only for a backport commit
+  that was added or changed since the last reviewed head, or else as a
+  non-blocking note. A missing hunk of the upstream change a commit claims to
+  land is different: it blocks whenever it is found, in a later round too. A
+  maintainer may
+  defer a follow-up to its own later backport; once one has deferred an
+  upstream PR on this pull request, do not report that upstream PR as missing
+  again.
 - **Release line.** When the PR or its batch states a target Dash release,
   flag upstream PRs that belong to a later upstream release line than the
   rest of the batch, so maintainers can confirm they belong in this release.
