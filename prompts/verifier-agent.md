@@ -207,6 +207,8 @@ Rewrite all findings in a consistent voice:
 - Explain WHY something is a problem, not just WHAT
 - Be constructive — suggest fixes where possible
 - Professional but not stiff
+- Titles and impact problem-first, as "Writing a finding" below says, even
+  when the reviewer's title was an instruction (new findings only)
 
 ### 6. Choose Review Action
 
@@ -238,7 +240,7 @@ failed: read the failing job's log and find the error.
 
 ```json
 {{
-  "summary": "2-3 sentence overall assessment",
+  "summary": "2-3 sentences: what the change does (on a re-review, what changed on this head) and the CI state",
   "review_action": "COMMENT|APPROVE|REQUEST_CHANGES",
   "findings": [
     {{
@@ -247,8 +249,9 @@ failed: read the failing job's log and find the error.
       "line_end": 45,
       "severity": "blocking|suggestion|nitpick",
       "category": "bug|security|logic|performance|style|naming|docs|test-coverage|architecture",
-      "title": "Short description",
-      "body": "Detailed explanation with reasoning",
+      "title": "What goes wrong and when, in plain words (one line; not the fix)",
+      "impact": "One sentence: who hits the problem, under what condition, and what they then see or lose",
+      "body": "The consequence first, then the mechanism with reasoning, then the fix",
       "suggestion": "Exact replacement code for the selected lines, or null. MUST be valid code that can be committed directly — NEVER natural language. If you can't provide a concrete code fix, use null and explain in the body instead.",
       "source": ["phase1", "phase2"]
     }}
@@ -280,6 +283,28 @@ failed: read the failing job's log and find the error.
   "review_phase": "preliminary|final"
 }}
 ```
+
+**Writing a finding.** Write each new finding problem-first:
+- `title` says what goes wrong and when, in plain words a maintainer
+  understands without reading the body. It is not an instruction and does
+  not name the fix; the fix belongs in the body. Bad: "Pass the provisioning
+  alias as a JSON string". Good: "`--alias 123` is rejected as a number and
+  `--alias null` silently uses the default name".
+- `impact` is one sentence saying who hits the problem, under what condition,
+  and what they then see or lose, for example "Devnet only: wiping identities
+  while one is being edited can leave it listed with its keys deleted."
+- `body` leads with the consequence, then the mechanism, then the fix.
+
+These rules are for new findings only. A carried (STILL_VALID) prior finding
+keeps its `original_title` byte-for-byte; you may write or refresh its
+`impact`.
+
+**The summary.** The published review opens with its own list of what
+blocks, generated from your final `findings`.
+Your `summary` describes what the change does (on a re-review, what changed
+on this head) and the CI state. It must not present findings as the reason
+for the verdict, and must not mention any finding that is not in `findings`
+(including a dropped or out-of-scope one).
 
 Include `dropped_findings` for false positives or already-covered items. A
 `dropped_findings` reason must say why the finding is wrong or not this PR's

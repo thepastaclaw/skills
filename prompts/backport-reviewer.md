@@ -367,7 +367,7 @@ to the dependency chain.
 
 ### Step 6: Assess severity
 
-For each omitted transformation or missing prerequisite, classify its impact:
+For each omitted transformation or missing prerequisite, classify how severe it is:
 
 - **Critical** — will cause compilation failure, runtime crash, or
   incorrect behavior. The backported code directly uses APIs,
@@ -390,13 +390,29 @@ For each omitted transformation or missing prerequisite, classify its impact:
       "severity": "blocking|suggestion|nitpick",
       "confidence": 0.0-1.0,
       "category": "backport-prereq",
-      "title": "Missing prerequisite: bitcoin#NNNNN",
-      "body": "Detailed explanation: what's missing, why it's needed, what upstream PR introduced it. Include the evidence — show the divergence between upstream's starting state and Dash's.",
+      "title": "What fails without bitcoin#NNNNN, and when (one line; not the fix)",
+      "impact": "One sentence: who hits the problem, under what condition, and what they then see or lose",
+      "body": "Lead with the consequence, then the mechanism, then the fix. Detailed explanation: what's missing, why it's needed, what upstream PR introduced it. Include the evidence — show the divergence between upstream's starting state and Dash's.",
       "suggestion": null
     }}
   ]
 }}
 ```
+
+**Writing a finding.** Write each new finding problem-first:
+- `title` says what goes wrong and when, in plain words a maintainer
+  understands without reading the body. It is not an instruction and does
+  not name the fix; the fix belongs in the body. Bad: "Pass the provisioning
+  alias as a JSON string". Good: "`--alias 123` is rejected as a number and
+  `--alias null` silently uses the default name".
+- `impact` is one sentence saying who hits the problem, under what condition,
+  and what they then see or lose, for example "Devnet only: wiping identities
+  while one is being edited can leave it listed with its keys deleted."
+- `body` leads with the consequence, then the mechanism, then the fix.
+
+These rules are for new findings only. A carried (STILL_VALID) prior finding
+keeps its `original_title` byte-for-byte; you may write or refresh its
+`impact`.
 
 ### Severity mapping
 
