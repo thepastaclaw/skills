@@ -61,6 +61,16 @@ For EACH reviewer finding:
      it is, where the suggestion would hurt more than help?
    - Does the broader context (callers, lifecycle, related code)
      make this a non-issue?
+   - For a finding rated blocking: would a careful maintainer who has read
+     the whole change refuse to merge over it? Trace who reaches the failure
+     and how (the user action, peer message or API call, the inputs or state
+     it needs and how they arise) and what is lost, and put that in the body.
+     When the path needs a sequence of steps nobody would perform, a state
+     the product never gets into on its own, or deliberate misuse of an
+     example, test or developer tool, keep the finding as a suggestion. A
+     finding that blocks under one of the project's own rules (layer
+     ownership, a backport's missing hunk or follow-up) is judged by that
+     rule instead.
 3. **Scope-gate the finding:**
    - Identify the PR's stated goal from the title, description,
      linked issues, changed files, and conversation.
