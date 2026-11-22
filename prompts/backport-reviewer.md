@@ -367,7 +367,7 @@ to the dependency chain.
 
 ### Step 6: Assess severity
 
-For each omitted transformation or missing prerequisite, classify its impact:
+For each omitted transformation or missing prerequisite, classify how severe it is:
 
 - **Critical** — will cause compilation failure, runtime crash, or
   incorrect behavior. The backported code directly uses APIs,
