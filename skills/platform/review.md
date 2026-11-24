@@ -49,6 +49,31 @@ mobile SDKs hold no business logic"):
   behaviour for a protocol version that selects it (the book allows inert
   in-place edits; the PR must show the edit is inert)
 
+**Example apps.** `packages/swift-sdk/SwiftExampleApp` and
+`packages/kotlin-sdk/KotlinExampleApp` are demo and QA apps for developers,
+not products. The non-consensus correctness list above is written for the
+wallet, SDK and FFI crates; do not match its lines against example-app code.
+A finding whose defect is in example-app code blocks only when one of these
+holds:
+- Using the screen the ordinary way loses funds, or loses or exposes a
+  private key or recovery phrase
+- The feature the PR adds does not work on its main path (the screen cannot
+  complete the operation it exists for)
+- The build or the app's tests break
+- The app code decides something the layer-ownership rule above gives to
+  Rust
+
+Everything else in example-app code is at most a suggestion: a wrong or
+stale value on screen, a misleading message, a state that a reload or the
+next sync corrects, a race that needs a second window, a second device, a
+failed save or a full disk, input nobody would type, a missing guard on a
+developer tool. Say who hits it and what they lose in the body, as for any
+finding; the severity does not rise because the wording of a line above
+fits.
+
+A defect that shows in an example app but lives in the SDK, FFI or wallet
+code it calls is judged where it lives, by the lists above.
+
 **Suggestion — upstream ownership.** A change that mainly works around a
 defect or missing capability in another Dash-owned project (rust-dashcore's
 key-wallet or dash-spv, tenderdash, grovedb): one finding naming the owning
