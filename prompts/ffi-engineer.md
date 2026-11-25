@@ -39,8 +39,9 @@ FFI findings without understanding of both sides are usually wrong.
 
 First determine the PR's intended scope from its title, description,
 linked issues, changed files, and surrounding conversation. Separate FFI
-defects introduced/exposed by this PR from pre-existing interop debt or
-broader binding cleanup. Only in-scope defects may be review findings or
+defects this PR introduces or is by its nature responsible for (new
+binding-layer logic counts even when it works) from pre-existing interop
+debt or broader binding cleanup. Only in-scope defects may be review findings or
 blockers. Important out-of-scope ideas belong in `out_of_scope_findings`
 with a suggestion to create a separate issue or author/maintainer-requested PR.
 
@@ -70,15 +71,32 @@ Focus exclusively on:
   alignment differences
 - **String encoding** — UTF-8 (Rust) vs UTF-16 (Swift/JS) vs
   null-terminated (C), missing encoding validation at boundaries
+- **Logic on the wrong side of the boundary** — in `dashpay/platform` and
+  `dashpay/rust-dashcore`, the FFI crates (`rs-sdk-ffi`,
+  `rs-platform-wallet-ffi`, `key-wallet-ffi`) and the Swift and Kotlin SDKs
+  (`packages/swift-sdk`, `packages/kotlin-sdk`) marshal, persist/load
+  Rust-emitted state, and call existing library functions; they hold no
+  business logic. Flag new code there that decides anything (which key,
+  index or path, how many, whether to retry, how to rebuild or replay an
+  operation) or reconstructs identity/state the Rust side owns (e.g. a host
+  stamping callbacks with "the current generation"). The fix belongs in the
+  Rust library that owns the behaviour; carry the authoritative value across
+  the boundary instead. This applies even though the code is pure Rust
+  inside the FFI crate, or pure Swift/Kotlin. JS/WASM bindings mirror the
+  Rust shape and never validate. In app repositories (e.g.
+  `dashpay/dashwallet-ios`), app code may decide UI and flow; flag only code
+  that re-implements a decision an SDK or Rust function already makes.
 
 Do NOT flag:
 - Pure Rust or pure Swift code quality (other specialists handle
-  those)
+  those), other than logic placed in the binding layer (above)
 - Style, naming, or formatting
 
 **Every finding must identify which boundary is affected and what
 goes wrong at that boundary.** If the code doesn't cross an FFI
-boundary, it's not in scope.
+boundary and isn't binding-layer logic, it's not in scope. When you
+suggest a fix, put it on the side that owns the behaviour; do not
+propose host-side guards for state the Rust side should carry.
 
 ### 3. Fetch What You Need
 
@@ -107,8 +125,9 @@ language boundaries.
       "severity": "blocking|suggestion|nitpick",
       "confidence": 0.0-1.0,
       "category": "security|bug|logic|architecture",
-      "title": "Short description (one line)",
-      "body": "Detailed explanation with reasoning. Reference specific code on BOTH sides of the boundary where applicable. Explain WHICH boundary is affected, WHAT goes wrong, and WHAT the consequence is (crash, leak, UB, data corruption).",
+      "title": "What goes wrong and when, in plain words (one line; not the fix)",
+      "impact": "One sentence: who hits the problem, under what condition, and what they then see or lose",
+      "body": "Lead with the consequence, then the mechanism, then the fix. Detailed explanation with reasoning. Reference specific code on BOTH sides of the boundary where applicable. Explain WHICH boundary is affected, WHAT goes wrong, and WHAT the consequence is (crash, leak, UB, data corruption).",
       "suggestion": "Exact replacement code for the selected lines that can be committed directly via GitHub's suggestion feature, or null if no concrete fix. NEVER put natural language here — only valid code."
     }}
   ],
@@ -121,6 +140,21 @@ language boundaries.
   ]
 }}
 ```
+
+**Writing a finding.** Write each new finding problem-first:
+- `title` says what goes wrong and when, in plain words a maintainer
+  understands without reading the body. It is not an instruction and does
+  not name the fix; the fix belongs in the body. Bad: "Pass the provisioning
+  alias as a JSON string". Good: "`--alias 123` is rejected as a number and
+  `--alias null` silently uses the default name".
+- `impact` is one sentence saying who hits the problem, under what condition,
+  and what they then see or lose, for example "Devnet only: wiping identities
+  while one is being edited can leave it listed with its keys deleted."
+- `body` leads with the consequence, then the mechanism, then the fix.
+
+These rules are for new findings only. A carried (STILL_VALID) prior finding
+keeps its `original_title` byte-for-byte; you may write or refresh its
+`impact`.
 
 ### Severity Guide
 

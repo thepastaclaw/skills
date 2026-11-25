@@ -192,14 +192,30 @@ sentinel `"<commit:SHORTSHA>"` if no single file applies),
       "severity": "blocking|suggestion|nitpick",
       "confidence": 0.0-1.0,
       "category": "style",
-      "title": "Short description (one line)",
-      "body": "Reference the commit SHA(s). Explain what the hygiene problem is and why it matters for the permanent develop history. Suggest the concrete cleanup (squash, reword, drop merge commit, rebase).",
+      "title": "What goes wrong and when, in plain words (one line; not the fix)",
+      "impact": "One sentence: who hits the problem, under what condition, and what they then see or lose",
+      "body": "Lead with the consequence, then the mechanism, then the fix. Reference the commit SHA(s). Explain what the hygiene problem is and why it matters for the permanent develop history. Suggest the concrete cleanup (squash, reword, drop merge commit, rebase).",
       "suggestion": null
     }}
   ],
   "out_of_scope_findings": []
 }}
 ```
+
+**Writing a finding.** Write each new finding problem-first:
+- `title` says what goes wrong and when, in plain words a maintainer
+  understands without reading the body. It is not an instruction and does
+  not name the fix; the fix belongs in the body. Bad: "Pass the provisioning
+  alias as a JSON string". Good: "`--alias 123` is rejected as a number and
+  `--alias null` silently uses the default name".
+- `impact` is one sentence saying who hits the problem, under what condition,
+  and what they then see or lose, for example "Devnet only: wiping identities
+  while one is being edited can leave it listed with its keys deleted."
+- `body` leads with the consequence, then the mechanism, then the fix.
+
+These rules are for new findings only. A carried (STILL_VALID) prior finding
+keeps its `original_title` byte-for-byte; you may write or refresh its
+`impact`.
 
 Always emit a valid JSON object. If there are no findings, use an
 empty `findings` array and an empty `out_of_scope_findings` array.

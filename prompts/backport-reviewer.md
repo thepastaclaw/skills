@@ -84,6 +84,43 @@ Parse all supported marker forms and classify their intent:
   as declared and possibly intentional rather than automatically escalating
   them as undeclared drops. The declaration does not waive the mandatory
   test and release-note rules below.
+- **Already landed.** For every upstream PR the PR claims to land, search
+  `<review_base>` for an earlier commit whose *subject claims to land* the
+  same PR, with the number anchored so `bitcoin#1234` does not match
+  `bitcoin#12345`:
+
+  ```bash
+  git log --oneline <review_base> -E --regexp-ignore-case \
+    --grep='(Merge|backport).*bitcoin(/bitcoin)?#NNNNN([^0-9]|$)'
+  ```
+
+  Ignore "follow-up for" / "reference" commits. If an earlier commit fully
+  landed the PR, the new commit re-applies it: blocking, naming the existing
+  commit. If the earlier commit was declared partial, this PR may be the
+  completion; block only on hunks that are already present at
+  `<review_base>` (re-applied), and say which.
+- **Later upstream removal (informational by default).** Dash backports in
+  upstream order, so later upstream PRs often delete or replace backported
+  code; that is a future backport, not a defect here. Mention it only when
+  useful. Raise it as blocking only when the deleting/replacing upstream PR
+  is already an ancestor of `<review_base>` (Dash already took the removal),
+  or when the PR is a Dash-only patch to code upstream has since removed (the
+  patch should follow the upstream deletion instead; e.g. depends files).
+- **Later upstream fixes (missing follow-ups).** A later upstream PR that
+  fixes a bug the backported commit brings in is a missing follow-up: report
+  it as `Missing follow-up: bitcoin#NNNNN` with `"upstream_followup": true`.
+  Missing follow-ups of a backported commit are enumerated in the first full
+  review of that commit. A later round reports one only for a backport commit
+  that was added or changed since the last reviewed head, or else as a
+  non-blocking note. A missing hunk of the upstream change a commit claims to
+  land is different: it blocks whenever it is found, in a later round too. A
+  maintainer may
+  defer a follow-up to its own later backport; once one has deferred an
+  upstream PR on this pull request, do not report that upstream PR as missing
+  again.
+- **Release line.** When the PR or its batch states a target Dash release,
+  flag upstream PRs that belong to a later upstream release line than the
+  rest of the batch, so maintainers can confirm they belong in this release.
 
 ### Step 1: Identify upstream merge commits
 
@@ -342,7 +379,7 @@ to the dependency chain.
 
 ### Step 6: Assess severity
 
-For each omitted transformation or missing prerequisite, classify its impact:
+For each omitted transformation or missing prerequisite, classify how severe it is:
 
 - **Critical** — will cause compilation failure, runtime crash, or
   incorrect behavior. The backported code directly uses APIs,
@@ -365,13 +402,29 @@ For each omitted transformation or missing prerequisite, classify its impact:
       "severity": "blocking|suggestion|nitpick",
       "confidence": 0.0-1.0,
       "category": "backport-prereq",
-      "title": "Missing prerequisite: bitcoin#NNNNN",
-      "body": "Detailed explanation: what's missing, why it's needed, what upstream PR introduced it. Include the evidence — show the divergence between upstream's starting state and Dash's.",
+      "title": "What fails without bitcoin#NNNNN, and when (one line; not the fix)",
+      "impact": "One sentence: who hits the problem, under what condition, and what they then see or lose",
+      "body": "Lead with the consequence, then the mechanism, then the fix. Detailed explanation: what's missing, why it's needed, what upstream PR introduced it. Include the evidence — show the divergence between upstream's starting state and Dash's.",
       "suggestion": null
     }}
   ]
 }}
 ```
+
+**Writing a finding.** Write each new finding problem-first:
+- `title` says what goes wrong and when, in plain words a maintainer
+  understands without reading the body. It is not an instruction and does
+  not name the fix; the fix belongs in the body. Bad: "Pass the provisioning
+  alias as a JSON string". Good: "`--alias 123` is rejected as a number and
+  `--alias null` silently uses the default name".
+- `impact` is one sentence saying who hits the problem, under what condition,
+  and what they then see or lose, for example "Devnet only: wiping identities
+  while one is being edited can leave it listed with its keys deleted."
+- `body` leads with the consequence, then the mechanism, then the fix.
+
+These rules are for new findings only. A carried (STILL_VALID) prior finding
+keeps its `original_title` byte-for-byte; you may write or refresh its
+`impact`.
 
 ### Severity mapping
 
